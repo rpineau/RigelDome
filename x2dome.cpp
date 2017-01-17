@@ -130,7 +130,7 @@ int X2Dome::execModalSettingsDialog()
     char tmpBuf[SERIAL_BUFFER_SIZE];
     double dHomeAz;
     double dParkAz;
-    double domeBattery;
+    int shutterBatteryPercent;
     double shutterBattery;
     
 
@@ -157,10 +157,10 @@ int X2Dome::execModalSettingsDialog()
     if(m_bLinked) {
         snprintf(tmpBuf,16,"%d",rigelDome.getNbTicksPerRev());
         dx->setPropertyString("ticksPerRev","text", tmpBuf);
-        rigelDome.getBatteryLevels(domeBattery, shutterBattery);
-        snprintf(tmpBuf,16,"%2.2f V",domeBattery);
-        dx->setPropertyString("domeBatteryLevel","text", tmpBuf);
         if(mHasShutterControl) {
+            rigelDome.getBatteryLevels(shutterBattery, shutterBatteryPercent);
+            snprintf(tmpBuf,16,"%d V",shutterBatteryPercent);
+            dx->setPropertyString("shutterBatteryLevelPercent","text", tmpBuf);
             snprintf(tmpBuf,16,"%2.2f V",shutterBattery);
             dx->setPropertyString("shutterBatteryLevel","text", tmpBuf);
         }
@@ -215,9 +215,9 @@ void X2Dome::uiEvent(X2GUIExchangeInterface* uiex, const char* pszEvent)
 {
     bool complete = false;
     int err;
-    double domeBattery;
+    int shutterBatteryPercent;
     double shutterBattery;
-    char tmpBuf[SERIAL_BUFFER_SIZE];    
+    char tmpBuf[SERIAL_BUFFER_SIZE];
     char errorMessage[LOG_BUFFER_SIZE];
     
     if (!strcmp(pszEvent, "on_pushButtonCancel_clicked"))
@@ -281,10 +281,10 @@ void X2Dome::uiEvent(X2GUIExchangeInterface* uiex, const char* pszEvent)
             if(mHasShutterControl && !mHomingDome && !mCalibratingDome) {
                 // don't ask to often
                 if (!(mBattRequest%4)) {
-                    rigelDome.getBatteryLevels(domeBattery, shutterBattery);
-                    snprintf(tmpBuf,16,"%2.2f V",domeBattery);
-                    uiex->setPropertyString("domeBatteryLevel","text", tmpBuf);
                     if(mHasShutterControl) {
+                        rigelDome.getBatteryLevels(shutterBattery, shutterBatteryPercent);
+                        snprintf(tmpBuf,16,"%d V",shutterBatteryPercent);
+                        uiex->setPropertyString("shutterBatteryLevelPercent","text", tmpBuf);
                         snprintf(tmpBuf,16,"%2.2f V",shutterBattery);
                         uiex->setPropertyString("shutterBatteryLevel","text", tmpBuf);
                     }

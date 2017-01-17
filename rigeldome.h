@@ -71,7 +71,7 @@ public:
     double getCurrentEl();
 
     int getCurrentShutterState();
-    int getBatteryLevels(double &domeVolts, double &shutterVolts);
+    int getBatteryLevels(double &shutterVolts, int &percent);
 
     void setDebugLog(bool enable);
 
@@ -100,6 +100,7 @@ protected:
     
     int             mNbStepPerRev;
     double          mShutterBatteryVolts;
+    double          mShutterBatteryPercent;
     double          mHomeAz;
     
     double          mParkAz;
