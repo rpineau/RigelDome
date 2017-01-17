@@ -32,7 +32,8 @@ CRigelDome::CRigelDome()
     mCurrentElPosition = 0.0;
 
     bCalibrating = false;
-    
+
+    mHasShutter = false;
     mShutterOpened = false;
     
     mParked = true;
@@ -49,7 +50,8 @@ CRigelDome::~CRigelDome()
 int CRigelDome::Connect(const char *szPort)
 {
     int err;
-    
+    int state;
+
     // 9600 8N1
     if(pSerx->open(szPort, 115200, SerXInterface::B_NOPARITY, "-DTR_CONTROL 1") == 0)
         bIsConnected = true;
@@ -86,6 +88,10 @@ int CRigelDome::Connect(const char *szPort)
     getDomeParkAz(mCurrentAzPosition);
 
     syncDome(mCurrentAzPosition,mCurrentElPosition);
+    err = getShutterState(state);
+
+    if(state != NOT_FITTED && state != UNKNOWN )
+        mHasShutter = true;
 
     return SB_OK;
 }
@@ -366,6 +372,10 @@ int CRigelDome::getBatteryLevels(double &shutterVolts, int &percent)
 
     shutterVolts = shutterVolts / 1000.0;
     return err;
+}
+
+bool CRigelDome::hasShutterUnit() {
+    return mHasShutter;
 }
 
 void CRigelDome::setDebugLog(bool enable)

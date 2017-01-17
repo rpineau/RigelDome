@@ -35,7 +35,6 @@ X2Dome::X2Dome(const char* pszSelection,
 	m_pTickCount					= pTickCount;
 
 	m_bLinked = false;
-    mHomingDome = false;
     mCalibratingDome = false;
     mBattRequest = 0;
     
@@ -46,7 +45,6 @@ X2Dome::X2Dome(const char* pszSelection,
     {   
         rigelDome.setHomeAz( m_pIniUtil->readDouble(PARENT_KEY, CHILD_KEY_HOME_AZ, 180) );
         rigelDome.setParkAz( m_pIniUtil->readDouble(PARENT_KEY, CHILD_KEY_PARK_AZ, 180) );
-        mHasShutterControl = m_pIniUtil->readInt(PARENT_KEY, CHILD_KEY_SHUTTER_CONTROL, false);
     }
 }
 
@@ -85,6 +83,7 @@ int X2Dome::establishLink(void)
     else
         m_bLinked = true;
 
+    mHasShutterControl = rigelDome.hasShutterUnit();
 	return err;
 }
 
@@ -159,9 +158,7 @@ int X2Dome::execModalSettingsDialog()
         dx->setPropertyString("ticksPerRev","text", tmpBuf);
         if(mHasShutterControl) {
             rigelDome.getBatteryLevels(shutterBattery, shutterBatteryPercent);
-            snprintf(tmpBuf,16,"%d V",shutterBatteryPercent);
-            dx->setPropertyString("shutterBatteryLevelPercent","text", tmpBuf);
-            snprintf(tmpBuf,16,"%2.2f V",shutterBattery);
+            snprintf(tmpBuf,16,"%d%% ( %3.2f V )",shutterBatteryPercent, shutterBattery);
             dx->setPropertyString("shutterBatteryLevel","text", tmpBuf);
         }
         else {
@@ -180,8 +177,8 @@ int X2Dome::execModalSettingsDialog()
     dx->setPropertyDouble("homePosition","value", rigelDome.getHomeAz());
     dx->setPropertyDouble("parkPosition","value", rigelDome.getParkAz());
 
-    mHomingDome = false;
     mBattRequest = 0;
+    mCalibratingDome = false;
     
     X2MutexLocker ml(GetMutex());
 
@@ -194,7 +191,6 @@ int X2Dome::execModalSettingsDialog()
     {
         dx->propertyDouble("homePosition", "value", dHomeAz);
         dx->propertyDouble("parkPosition", "value", dParkAz);
-        mHasShutterControl = dx->isChecked("hasShutterCtrl");
 
         if(m_bLinked)
         {
@@ -205,7 +201,6 @@ int X2Dome::execModalSettingsDialog()
         // save the values to persistent storage
         nErr |= m_pIniUtil->writeDouble(PARENT_KEY, CHILD_KEY_HOME_AZ, dHomeAz);
         nErr |= m_pIniUtil->writeDouble(PARENT_KEY, CHILD_KEY_PARK_AZ, dParkAz);
-        nErr |= m_pIniUtil->writeInt(PARENT_KEY, CHILD_KEY_SHUTTER_CONTROL, mHasShutterControl);
     }
     return nErr;
 
@@ -225,31 +220,7 @@ void X2Dome::uiEvent(X2GUIExchangeInterface* uiex, const char* pszEvent)
 
     if (!strcmp(pszEvent, "on_timer"))
     {
-        mHasShutterControl = uiex->isChecked("hasShutterCtrl");
         if(m_bLinked) {
-            // are we going to Home position to calibrate ?
-            if(mHomingDome) {
-                // are we home ?
-                complete = false;
-                err = rigelDome.isFindHomeComplete(complete);
-                if (err) {
-                    uiex->setEnabled("pushButton",true);
-                    uiex->setEnabled("pushButtonOK",true);
-                    snprintf(errorMessage, LOG_BUFFER_SIZE, "Error homing dome while calibrating dome : Error %d", err);
-                    uiex->messageBox("rigelDome Calibrate", errorMessage);
-                    mHomingDome = false;
-                    mCalibratingDome = false;
-                    return;
-                }
-                if(complete) {
-                    mHomingDome = false;
-                    mCalibratingDome = true;
-                    rigelDome.calibrate();
-                    return;
-                }
-                
-            }
-            
             if(mCalibratingDome) {
                 // are we still calibrating ?
                 complete = false;
@@ -259,7 +230,6 @@ void X2Dome::uiEvent(X2GUIExchangeInterface* uiex, const char* pszEvent)
                     uiex->setEnabled("pushButtonOK",true);
                     snprintf(errorMessage, LOG_BUFFER_SIZE, "Error calibrating dome : Error %d", err);
                     uiex->messageBox("rigelDome Calibrate", errorMessage);
-                    mHomingDome = false;
                     mCalibratingDome = false;
                     return;;
                 }
@@ -278,14 +248,12 @@ void X2Dome::uiEvent(X2GUIExchangeInterface* uiex, const char* pszEvent)
                 
             }
             
-            if(mHasShutterControl && !mHomingDome && !mCalibratingDome) {
+            if(mHasShutterControl && !mCalibratingDome) {
                 // don't ask to often
                 if (!(mBattRequest%4)) {
                     if(mHasShutterControl) {
                         rigelDome.getBatteryLevels(shutterBattery, shutterBatteryPercent);
-                        snprintf(tmpBuf,16,"%d V",shutterBatteryPercent);
-                        uiex->setPropertyString("shutterBatteryLevelPercent","text", tmpBuf);
-                        snprintf(tmpBuf,16,"%2.2f V",shutterBattery);
+                        snprintf(tmpBuf,16,"%d%% ( %3.2f V )",shutterBatteryPercent, shutterBattery);
                         uiex->setPropertyString("shutterBatteryLevel","text", tmpBuf);
                     }
                     else {
@@ -306,8 +274,8 @@ void X2Dome::uiEvent(X2GUIExchangeInterface* uiex, const char* pszEvent)
             // disable "ok" and "calibrate"
             uiex->setEnabled("pushButton",false);
             uiex->setEnabled("pushButtonOK",false);
-            rigelDome.goHome();
-            mHomingDome = true;
+            rigelDome.calibrate();
+            mCalibratingDome = true;
         }
     }
 

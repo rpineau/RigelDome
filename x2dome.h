@@ -151,7 +151,6 @@ private:
     CRigelDome  rigelDome;
     bool        mHasShutterControl;
     bool        mOpenUpperShutterOnly;
-    bool        mHomingDome;
     bool        mCalibratingDome;
     char        mLogBuffer[LOG_BUFFER_SIZE];
     int         mBattRequest;

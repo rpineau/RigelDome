@@ -73,6 +73,8 @@ public:
     int getCurrentShutterState();
     int getBatteryLevels(double &shutterVolts, int &percent);
 
+    bool hasShutterUnit();
+
     void setDebugLog(bool enable);
 
 protected:
