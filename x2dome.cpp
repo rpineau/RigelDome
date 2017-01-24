@@ -142,6 +142,7 @@ int X2Dome::execModalSettingsDialog()
     if (NULL == (dx = uiutil.X2DX()))
         return ERR_POINTER;
 
+
     memset(tmpBuf,0,SERIAL_BUFFER_SIZE);
     if(mHasShutterControl)
     {
@@ -288,17 +289,17 @@ void X2Dome::uiEvent(X2GUIExchangeInterface* uiex, const char* pszEvent)
 
 void X2Dome::deviceInfoNameShort(BasicStringInterface& str) const					
 {
-	str = "rigelDome";
+	str = "RigelDome";
 }
 
 void X2Dome::deviceInfoNameLong(BasicStringInterface& str) const					
 {
-    str = "rigelDome Dome Control System";
+    str = "Rigel rotation drive unit";
 }
 
 void X2Dome::deviceInfoDetailedDescription(BasicStringInterface& str) const		
 {
-    str = "rigelDome Dome Control System by Rodolphe Pineau";
+    str = "Rigel rotation drive unit for Pulsar Dome ";
 }
 
  void X2Dome::deviceInfoFirmwareVersion(BasicStringInterface& str)					
@@ -315,7 +316,14 @@ void X2Dome::deviceInfoDetailedDescription(BasicStringInterface& str) const
 
 void X2Dome::deviceInfoModel(BasicStringInterface& str)
 {
-    str = "rigelDome";
+    if(m_bLinked) {
+        char cModel[SERIAL_BUFFER_SIZE];
+        rigelDome.getModel(cModel, SERIAL_BUFFER_SIZE);
+        str = cModel;
+
+    }
+    else
+        str = "N/A";
 }
 
 //
@@ -325,7 +333,7 @@ void X2Dome::deviceInfoModel(BasicStringInterface& str)
 
  void	X2Dome::driverInfoDetailedInfo(BasicStringInterface& str) const	
 {
-    str = "rigelDome X2 plugin v1.0";
+    str = "Rigel rotation drive unit X2 plugin by Rodolphe Pineau";
 }
 
 double	X2Dome::driverInfoVersion(void) const

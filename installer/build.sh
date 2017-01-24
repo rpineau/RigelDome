@@ -1,10 +1,10 @@
 #!/bin/bash
 
-mkdir -p ROOT/tmp/RigelDomee_X2/
-cp "../RigelDome.ui" ROOT/tmp/RigelDomee_X2/
-cp "../RigelDome.png" ROOT/tmp/RigelDomee_X2/
-cp "../domelist RigelDome.txt" ROOT/tmp/RigelDomee_X2/
-cp "../build/Release/libRigelDome.dylib" ROOT/tmp/RigelDomee_X2/
+mkdir -p ROOT/tmp/RigelDome_X2/
+cp "../RigelDome.ui" ROOT/tmp/RigelDome_X2/
+cp "../Pulsar.png" ROOT/tmp/RigelDome_X2/
+cp "../domelist RigelDome.txt" ROOT/tmp/RigelDome_X2/
+cp "../build/Release/libRigelDome.dylib" ROOT/tmp/RigelDome_X2/
 
 if [ ! -z "$installer_signature" ]; then
 # signed package using env variable installer_signature

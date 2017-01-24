@@ -43,6 +43,7 @@ public:
     int openShutter();
     int closeShutter();
     int getFirmwareVersion(char *version, int strMaxLen);
+    int getModel(char *model, int strMaxLen);
     int goHome();
     int calibrate();
 

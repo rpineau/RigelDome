@@ -560,7 +560,7 @@ int CRigelDome::closeShutter()
 
 int CRigelDome::getFirmwareVersion(char *version, int strMaxLen)
 {
-    int err = 0;
+    int err = RD_OK;
     char resp[SERIAL_BUFFER_SIZE];
     double fVersion;
 
@@ -576,6 +576,25 @@ int CRigelDome::getFirmwareVersion(char *version, int strMaxLen)
 
     fVersion = atof(resp);
     snprintf(version,strMaxLen, "%.2f",fVersion);
+    return err;
+}
+
+int CRigelDome::getModel(char *model, int strMaxLen)
+{
+    int err = RD_OK;
+    char resp[SERIAL_BUFFER_SIZE];
+
+    if(!bIsConnected)
+        return NOT_CONNECTED;
+
+    if(bCalibrating)
+        return SB_OK;
+
+    err = domeCommand("PULSAR\r", resp, SERIAL_BUFFER_SIZE);
+    if(err)
+        return err;
+
+    strncpy(model, resp, strMaxLen);
     return err;
 }
 
