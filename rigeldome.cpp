@@ -291,7 +291,7 @@ int CRigelDome::getShutterState(int &state)
     if(err)
         return err;
 
-    state = atoi(resp);
+	shutterState = atoi(resp);
     switch(shutterState) {
         case OPEN:
             mShutterOpened = true;
