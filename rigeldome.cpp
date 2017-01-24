@@ -359,7 +359,7 @@ int CRigelDome::getBatteryLevels(double &shutterVolts, int &percent)
         j++;
     while(resp[j] != ' ' && i < (SERIAL_BUFFER_SIZE-1))
         voltData[i++]=resp[j++];
-    percent = atof(voltData);
+    percent = (int) atof(voltData);
 
     // skip the spaces:
     while(resp[j]==' ')
@@ -562,7 +562,7 @@ int CRigelDome::getFirmwareVersion(char *version, int strMaxLen)
 {
     int err = 0;
     char resp[SERIAL_BUFFER_SIZE];
-    float fVersion;
+    double fVersion;
 
     if(!bIsConnected)
         return NOT_CONNECTED;

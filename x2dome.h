@@ -147,7 +147,7 @@ private:
 
 
 	int         m_nPrivateISIndex;
-	int         m_bLinked;
+	bool         m_bLinked;
     CRigelDome  rigelDome;
     bool        mHasShutterControl;
     bool        mOpenUpperShutterOnly;
