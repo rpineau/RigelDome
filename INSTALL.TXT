@@ -1,5 +1,5 @@
 Install :
-Copy the  'domelist NexDome.txt' file to the "Common/Miscellaneous Files" directory inside of TheSkyX Pro.
-Copy libNexDome.dll, NexDome.png and NexDome.ui to the "Common/PlugIns/DomePlugIns" directory inside of TheSkyX Pro.
+Copy the  'domelist RigelDome.txt' file to the "Common/Miscellaneous Files" directory inside of TheSkyX Pro.
+Copy libRigelDome.dlll, Pulsar.png and RigelDome.ui to the "Common/PlugIns/DomePlugIns" directory inside of TheSkyX Pro.
 
 
