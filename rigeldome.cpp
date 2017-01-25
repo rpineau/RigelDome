@@ -17,7 +17,7 @@
 CRigelDome::CRigelDome()
 {
     // set some sane values
-    bDebugLog = false;
+    bDebugLog = true;
     
     pSerx = NULL;
     bIsConnected = false;
