@@ -7,7 +7,7 @@ LDFLAGS = -shared -lstdc++
 RM = rm -f
 TARGET_LIB = libRigelDome.so
 
-SRCS = main.cpp rigeldome.cpp rigeldome.cpp
+SRCS = main.cpp rigeldome.cpp x2dome.cpp
 OBJS = $(SRCS:.cpp=.o)
 
 .PHONY: all
