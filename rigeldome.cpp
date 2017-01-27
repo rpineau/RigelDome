@@ -336,10 +336,8 @@ int CRigelDome::getDomeStepPerRev(int &stepPerRev)
 int CRigelDome::getBatteryLevels(double &shutterVolts, int &percent)
 {
     int err = RD_OK;
-    int i = 0;
-    int j = 0;
+    int rc = 0;
     char resp[SERIAL_BUFFER_SIZE];
-    char voltData[SERIAL_BUFFER_SIZE];
     
     if(!bIsConnected)
         return NOT_CONNECTED;
@@ -351,24 +349,10 @@ int CRigelDome::getBatteryLevels(double &shutterVolts, int &percent)
     if(err)
         return err;
 
-    
-    // convert battery values string
-    memset(voltData,0,SERIAL_BUFFER_SIZE);
-    // skip the spaces:
-    while(resp[j]==' ')
-        j++;
-    while(resp[j] != ' ' && i < (SERIAL_BUFFER_SIZE-1))
-        voltData[i++]=resp[j++];
-    percent = (int) atof(voltData);
-
-    // skip the spaces:
-    while(resp[j]==' ')
-        j++;
-    memset(voltData,0,SERIAL_BUFFER_SIZE);
-    i = 0;
-    while(resp[j] != 0 && i < (SERIAL_BUFFER_SIZE-1))
-        voltData[i++]=resp[j++];
-    shutterVolts = atof(voltData);
+    rc = sscanf(resp, "%d %lf", &percent, &shutterVolts);
+    if(rc == 0) {
+        return COMMAND_FAILED;
+    }
 
     shutterVolts = shutterVolts / 1000.0;
     return err;
@@ -867,6 +851,7 @@ double CRigelDome::getHomeAz()
 {
     if(bIsConnected)
         getDomeHomeAz(mHomeAz);
+
     return mHomeAz;
 }
 

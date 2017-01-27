@@ -171,7 +171,6 @@ int X2Dome::execModalSettingsDialog()
     else {
         snprintf(tmpBuf,16,"NA");
         dx->setPropertyString("ticksPerRev","text", tmpBuf);
-        dx->setPropertyString("domeBatteryLevel","text", tmpBuf);
         dx->setPropertyString("shutterBatteryLevel","text", tmpBuf);
         dx->setEnabled("pushButton",false);
     }
@@ -299,7 +298,7 @@ void X2Dome::deviceInfoNameLong(BasicStringInterface& str) const
 
 void X2Dome::deviceInfoDetailedDescription(BasicStringInterface& str) const		
 {
-    str = "Rigel rotation drive unit for Pulsar Dome ";
+    str = "Rigel rotation drive unit for Pulsar Dome";
 }
 
  void X2Dome::deviceInfoFirmwareVersion(BasicStringInterface& str)					
