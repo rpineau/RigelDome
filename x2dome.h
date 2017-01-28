@@ -113,7 +113,7 @@ public:
     //SerialPortParams2Interface
     virtual void			portName(BasicStringInterface& str) const			;
     virtual void			setPortName(const char* szPort)						;
-    virtual unsigned int	baudRate() const			{return 9600;};
+    virtual unsigned int	baudRate() const			{return 115200;};
     virtual void			setBaudRate(unsigned int)	{};
     virtual bool			isBaudRateFixed() const		{return true;}
 
