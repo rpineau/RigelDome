@@ -23,7 +23,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>NexDome controller settings</string>
+   <string>Rigel rotation drive unit settings</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_5">
    <item>
