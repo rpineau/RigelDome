@@ -1,6 +1,6 @@
 //
-//  nexdome.cpp
-//  NexDome X2 plugin
+//  rigeldome.cpp
+//  Rigel rotation drive unit for Pulsar Dome X2 plugin
 //
 //  Created by Rodolphe Pineau on 6/11/2016.
 

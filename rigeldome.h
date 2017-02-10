@@ -1,12 +1,11 @@
 //
-//  nexdome.h
-//  NexDome
+//  rigeldome.h
 //
 //  Created by Rodolphe Pineau on 6/11/2016.
-//  NexDome X2 plugin
+//  Rigel rotation drive unit for Pulsar Dome X2 plugin
 
-#ifndef __NEXDOME__
-#define __NEXDOME__
+#ifndef __RIGEL_DOME__
+#define __RIGEL_DOME__
 #include <math.h>
 #include <string.h>
 #include "../../licensedinterfaces/sberrorx.h"
