@@ -377,10 +377,14 @@ int X2Dome::dapiGotoAzEl(double dAz, double dEl)
 int X2Dome::dapiAbort(void)
 {
 
+    X2MutexLocker ml(GetMutex());
+
     if(!m_bLinked)
         return ERR_NOLINK;
+
     rigelDome.abortCurrentCommand();
-	return SB_OK;
+
+    return SB_OK;
 }
 
 int X2Dome::dapiOpen(void)
