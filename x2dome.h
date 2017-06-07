@@ -147,13 +147,10 @@ private:
 
 
 	int         m_nPrivateISIndex;
-	bool         m_bLinked;
-    CRigelDome  rigelDome;
-    bool        mHasShutterControl;
-    bool        mOpenUpperShutterOnly;
-    bool        mCalibratingDome;
-    char        mLogBuffer[LOG_BUFFER_SIZE];
-    int         mBattRequest;
-    
-    // bool        mIsRollOffRoof;
+	bool        m_bLinked;
+    CRigelDome  m_RigelDome;
+    bool        m_bHasShutterControl;
+    bool        m_bOpenUpperShutterOnly;
+    bool        m_bCalibratingDome;
+    int         m_bBattRequest;
 };
