@@ -1,6 +1,6 @@
 //
-//  nexdome.cpp
-//  NexDome X2 plugin
+//  rigeldome.cpp
+//  Rigel rotation drive unit for Pulsar Dome X2 plugin
 //
 //  Created by Rodolphe Pineau on 6/11/2016.
 
@@ -17,29 +17,29 @@
 CRigelDome::CRigelDome()
 {
     // set some sane values
-    bDebugLog = true;
+    m_bDebugLog = true;
     
-    pSerx = NULL;
-    bIsConnected = false;
+    m_pSerx = NULL;
+    m_bIsConnected = false;
 
-    mNbStepPerRev = 0;
-    mShutterBatteryVolts = 0.0;
+    m_nNbStepPerRev = 0;
+    m_dShutterBatteryVolts = 0.0;
     
-    mHomeAz = 180;
-    mParkAz = 180;
+    m_dHomeAz = 180;
+    m_dParkAz = 180;
 
-    mCurrentAzPosition = 0.0;
-    mCurrentElPosition = 0.0;
+    m_dCurrentAzPosition = 0.0;
+    m_dCurrentElPosition = 0.0;
 
-    bCalibrating = false;
+    m_bCalibrating = false;
 
-    mHasShutter = false;
-    mShutterOpened = false;
+    m_bHasShutter = false;
+    m_bShutterOpened = false;
     
-    mParked = true;
-    mHomed = false;
-    memset(firmwareVersion,0,SERIAL_BUFFER_SIZE);
-    memset(mLogBuffer,0,ND_LOG_BUFFER_SIZE);
+    m_bParked = true;
+    m_bHomed = false;
+    memset(m_szFirmwareVersion,0,SERIAL_BUFFER_SIZE);
+    memset(m_szLogBuffer,0,ND_LOG_BUFFER_SIZE);
 }
 
 CRigelDome::~CRigelDome()
@@ -47,51 +47,51 @@ CRigelDome::~CRigelDome()
 
 }
 
-int CRigelDome::Connect(const char *szPort)
+int CRigelDome::Connect(const char *pszPort)
 {
-    int err;
-    int state;
+    int nErr;
+    int nState;
 
     // 9600 8N1
-    if(pSerx->open(szPort, 115200, SerXInterface::B_NOPARITY, "-DTR_CONTROL 1") == 0)
-        bIsConnected = true;
+    if(m_pSerx->open(pszPort, 115200, SerXInterface::B_NOPARITY, "-DTR_CONTROL 1") == 0)
+        m_bIsConnected = true;
     else
-        bIsConnected = false;
+        m_bIsConnected = false;
 
-    if(!bIsConnected)
+    if(!m_bIsConnected)
         return ERR_COMMNOLINK;
 
-    if (bDebugLog) {
-        snprintf(mLogBuffer,ND_LOG_BUFFER_SIZE,"[CRigelDome::Connect] Connected.\n");
-        mLogger->out(mLogBuffer);
+    if (m_bDebugLog) {
+        snprintf(m_szLogBuffer,ND_LOG_BUFFER_SIZE,"[CRigelDome::Connect] Connected.\n");
+        m_pLogger->out(m_szLogBuffer);
 
-        snprintf(mLogBuffer,ND_LOG_BUFFER_SIZE,"[CRigelDome::Connect] Getting Firmware.\n");
-        mLogger->out(mLogBuffer);
+        snprintf(m_szLogBuffer,ND_LOG_BUFFER_SIZE,"[CRigelDome::Connect] Getting Firmware.\n");
+        m_pLogger->out(m_szLogBuffer);
     }
     // if this fails we're not properly connected.
-    err = getFirmwareVersion(firmwareVersion, SERIAL_BUFFER_SIZE);
-    if(err) {
-        if (bDebugLog) {
-            snprintf(mLogBuffer,ND_LOG_BUFFER_SIZE,"[CRigelDome::Connect] Error Getting Firmware.\n");
-            mLogger->out(mLogBuffer);
+    nErr = getFirmwareVersion(m_szFirmwareVersion, SERIAL_BUFFER_SIZE);
+    if(nErr) {
+        if (m_bDebugLog) {
+            snprintf(m_szLogBuffer,ND_LOG_BUFFER_SIZE,"[CRigelDome::Connect] Error Getting Firmware.\n");
+            m_pLogger->out(m_szLogBuffer);
         }
-        bIsConnected = false;
-        pSerx->close();
+        m_bIsConnected = false;
+        m_pSerx->close();
         return FIRMWARE_NOT_SUPPORTED;
     }
 
-    if (bDebugLog) {
-        snprintf(mLogBuffer,ND_LOG_BUFFER_SIZE,"[CRigelDome::Connect] Got Firmware.\n");
-        mLogger->out(mLogBuffer);
+    if (m_bDebugLog) {
+        snprintf(m_szLogBuffer,ND_LOG_BUFFER_SIZE,"[CRigelDome::Connect] Got Firmware.\n");
+        m_pLogger->out(m_szLogBuffer);
     }
     // assume the dome was parked
-    getDomeParkAz(mCurrentAzPosition);
+    getDomeParkAz(m_dCurrentAzPosition);
 
-    syncDome(mCurrentAzPosition,mCurrentElPosition);
-    err = getShutterState(state);
+    syncDome(m_dCurrentAzPosition,m_dCurrentElPosition);
+    nErr = getShutterState(nState);
 
-    if(state != NOT_FITTED && state != UNKNOWN )
-        mHasShutter = true;
+    if(nState != NOT_FITTED && nState != UNKNOWN )
+        m_bHasShutter = true;
 
     return SB_OK;
 }
@@ -99,740 +99,762 @@ int CRigelDome::Connect(const char *szPort)
 
 void CRigelDome::Disconnect()
 {
-    if(bIsConnected) {
-        pSerx->purgeTxRx();
-        pSerx->close();
+    if(m_bIsConnected) {
+        m_pSerx->purgeTxRx();
+        m_pSerx->close();
     }
-    bIsConnected = false;
+    m_bIsConnected = false;
 }
 
 
-int CRigelDome::readResponse(char *respBuffer, int bufferLen)
+int CRigelDome::readResponse(char *pszRespBuffer, int nBufferLen)
 {
-    int err = RD_OK;
-    unsigned long nBytesRead = 0;
-    unsigned long totalBytesRead = 0;
-    char *bufPtr;
+    int nErr = RD_OK;
+    unsigned long ulBytesRead = 0;
+    unsigned long ulTotalBytesRead = 0;
+    char *pszBufPtr;
 
-    memset(respBuffer, 0, (size_t) bufferLen);
-    bufPtr = respBuffer;
+    memset(pszRespBuffer, 0, (size_t) nBufferLen);
+    pszBufPtr = pszRespBuffer;
 
     do {
-        err = pSerx->readFile(bufPtr, 1, nBytesRead, MAX_TIMEOUT);
-        if(err) {
-            if (bDebugLog) {
-                snprintf(mLogBuffer,ND_LOG_BUFFER_SIZE,"[CRigelDome::readResponse] readFile error.\n");
-                mLogger->out(mLogBuffer);
+        nErr = m_pSerx->readFile(pszBufPtr, 1, ulBytesRead, MAX_TIMEOUT);
+        if(nErr) {
+            if (m_bDebugLog) {
+                snprintf(m_szLogBuffer,ND_LOG_BUFFER_SIZE,"[CRigelDome::readResponse] readFile error.\n");
+                m_pLogger->out(m_szLogBuffer);
             }
-            return err;
+            return nErr;
         }
 
-        if (bDebugLog) {
-            snprintf(mLogBuffer,ND_LOG_BUFFER_SIZE,"[CRigelDome::readResponse] respBuffer = %s\n",respBuffer);
-            mLogger->out(mLogBuffer);
+        if (m_bDebugLog) {
+            snprintf(m_szLogBuffer,ND_LOG_BUFFER_SIZE,"[CRigelDome::readResponse] respBuffer = %s\n",pszRespBuffer);
+            m_pLogger->out(m_szLogBuffer);
         }
         
-        if (nBytesRead !=1) {// timeout
-            if (bDebugLog) {
-                snprintf(mLogBuffer,ND_LOG_BUFFER_SIZE,"[CRigelDome::readResponse] readFile Timeout.\n");
-                mLogger->out(mLogBuffer);
+        if (ulBytesRead !=1) {// timeout
+            if (m_bDebugLog) {
+                snprintf(m_szLogBuffer,ND_LOG_BUFFER_SIZE,"[CRigelDome::readResponse] readFile Timeout.\n");
+                m_pLogger->out(m_szLogBuffer);
             }
-            err = RD_BAD_CMD_RESPONSE;
+            nErr = RD_BAD_CMD_RESPONSE;
             break;
         }
-        totalBytesRead += nBytesRead;
-        if (bDebugLog) {
-            snprintf(mLogBuffer,ND_LOG_BUFFER_SIZE,"[CRigelDome::readResponse] nBytesRead = %lu\n",nBytesRead);
-            mLogger->out(mLogBuffer);
+        ulTotalBytesRead += ulBytesRead;
+        if (m_bDebugLog) {
+            snprintf(m_szLogBuffer,ND_LOG_BUFFER_SIZE,"[CRigelDome::readResponse] nBytesRead = %lu\n",ulBytesRead);
+            m_pLogger->out(m_szLogBuffer);
         }
-    } while (*bufPtr++ != 0x0D && totalBytesRead < bufferLen );
+    } while (*pszBufPtr++ != 0x0D && ulTotalBytesRead < nBufferLen );
 
-    *bufPtr = 0; //remove the \r
-    return err;
+    *pszBufPtr = 0; //remove the \r
+    return nErr;
 }
 
 
-int CRigelDome::domeCommand(const char *cmd, char *result, int resultMaxLen)
+int CRigelDome::domeCommand(const char *pszCmd, char *pszResult, int nResultMaxLen)
 {
-    int err = RD_OK;
-    char resp[SERIAL_BUFFER_SIZE];
-    unsigned long  nBytesWrite;
+    int nErr = RD_OK;
+    char szResp[SERIAL_BUFFER_SIZE];
+    unsigned long  ulBytesWrite;
 
-    pSerx->purgeTxRx();
-    if (bDebugLog) {
-        snprintf(mLogBuffer,ND_LOG_BUFFER_SIZE,"[CRigelDome::domeCommand] Sending %s\n",cmd);
-        mLogger->out(mLogBuffer);
+    m_pSerx->purgeTxRx();
+    if (m_bDebugLog) {
+        snprintf(m_szLogBuffer,ND_LOG_BUFFER_SIZE,"[CRigelDome::domeCommand] Sending %s\n",pszCmd);
+        m_pLogger->out(m_szLogBuffer);
     }
-    err = pSerx->writeFile((void *)cmd, strlen(cmd), nBytesWrite);
-    pSerx->flushTx();
-    if(err)
-        return err;
+    nErr = m_pSerx->writeFile((void *)pszCmd, strlen(pszCmd), ulBytesWrite);
+    m_pSerx->flushTx();
+    if(nErr)
+        return nErr;
     // read response
-    if (bDebugLog) {
-        snprintf(mLogBuffer,ND_LOG_BUFFER_SIZE,"[CRigelDome::domeCommand] Getting response.\n");
-        mLogger->out(mLogBuffer);
+    if (m_bDebugLog) {
+        snprintf(m_szLogBuffer,ND_LOG_BUFFER_SIZE,"[CRigelDome::domeCommand] Getting response.\n");
+        m_pLogger->out(m_szLogBuffer);
     }
-    err = readResponse(resp, SERIAL_BUFFER_SIZE);
-    if(err)
-        return err;
+    nErr = readResponse(szResp, SERIAL_BUFFER_SIZE);
+    if(nErr)
+        return nErr;
 
-    if(result)
-        strncpy(result, &resp[1], resultMaxLen);
+    if(pszResult)
+        strncpy(pszResult, &szResp[1], nResultMaxLen);
 
-    return err;
+    return nErr;
 
 }
 
-int CRigelDome::getDomeAz(double &domeAz)
+int CRigelDome::getDomeAz(double &dDomeAz)
 {
-    int err = RD_OK;
-    char resp[SERIAL_BUFFER_SIZE];
+    int nErr = RD_OK;
+    char szResp[SERIAL_BUFFER_SIZE];
 
-    if(!bIsConnected)
+    if(!m_bIsConnected)
         return NOT_CONNECTED;
 
-    if(bCalibrating)
-        return err;
+    if(m_bCalibrating)
+        return nErr;
 
-    err = domeCommand("ANGLE\r", resp, SERIAL_BUFFER_SIZE);
-    if(err)
-        return err;
+    nErr = domeCommand("ANGLE\r", szResp, SERIAL_BUFFER_SIZE);
+    if(nErr)
+        return nErr;
     
     // convert Az string to double
-    domeAz = atof(resp);
-    mCurrentAzPosition = domeAz;
+    dDomeAz = atof(szResp);
+    m_dCurrentAzPosition = dDomeAz;
 
-    return err;
+    return nErr;
 }
 
-int CRigelDome::getDomeEl(double &domeEl)
+int CRigelDome::getDomeEl(double &dDomeEl)
 {
-    int err = RD_OK;
-    int shutterState;
+    int nErr = RD_OK;
+    int nShutterState;
 
-    if(!bIsConnected)
+    if(!m_bIsConnected)
         return NOT_CONNECTED;
 
-    getShutterState(shutterState);
+    getShutterState(nShutterState);
 
-    if(!mShutterOpened || !mHasShutter)
+    if(!m_bShutterOpened || !m_bHasShutter)
     {
-        domeEl = 0.0;
+        dDomeEl = 0.0;
     }
     else {
-        domeEl = 90.0;
+        dDomeEl = 90.0;
     }
 
-    mCurrentElPosition = domeEl;
+    m_dCurrentElPosition = dDomeEl;
     
-    return err;
+    return nErr;
 }
 
 
-int CRigelDome::getDomeHomeAz(double &Az)
+int CRigelDome::getDomeHomeAz(double &dAz)
 {
-    int err = RD_OK;
-    char resp[SERIAL_BUFFER_SIZE];
+    int nErr = RD_OK;
+    char szResp[SERIAL_BUFFER_SIZE];
 
-    if(!bIsConnected)
+    if(!m_bIsConnected)
         return NOT_CONNECTED;
 
-    if(bCalibrating)
-        return err;
+    if(m_bCalibrating)
+        return nErr;
 
-    err = domeCommand("HOME\r", resp, SERIAL_BUFFER_SIZE);
-    if(err)
-        return err;
+    nErr = domeCommand("HOME\r", szResp, SERIAL_BUFFER_SIZE);
+    if(nErr)
+        return nErr;
 
     // convert Az string to double
-    Az = atof(resp);
-    mHomeAz = Az;
-    return err;
+    dAz = atof(szResp);
+    m_dHomeAz = dAz;
+    return nErr;
 }
 
-int CRigelDome::getDomeParkAz(double &Az)
+int CRigelDome::getDomeParkAz(double &dAz)
 {
-    int err = RD_OK;
-    char resp[SERIAL_BUFFER_SIZE];
+    int nErr = RD_OK;
+    char szResp[SERIAL_BUFFER_SIZE];
 
-    if(!bIsConnected)
+    if(!m_bIsConnected)
         return NOT_CONNECTED;
 
-    if(bCalibrating)
-        return err;
+    if(m_bCalibrating)
+        return nErr;
 
-    err = domeCommand("PARK\r", resp, SERIAL_BUFFER_SIZE);
-    if(err)
-        return err;
+    nErr = domeCommand("PARK\r", szResp, SERIAL_BUFFER_SIZE);
+    if(nErr)
+        return nErr;
 
     // convert Az string to double
-    Az = atof(resp);
-    mParkAz = Az;
-    return err;
+    dAz = atof(szResp);
+    m_dParkAz = dAz;
+    return nErr;
 }
 
 
-int CRigelDome::getShutterState(int &state)
+int CRigelDome::getShutterState(int &nState)
 {
-    int err = RD_OK;
-    char resp[SERIAL_BUFFER_SIZE];
-    int shutterState;
+    int nErr = RD_OK;
+    char szResp[SERIAL_BUFFER_SIZE];
+    int nShutterState;
 
-    if(!bIsConnected)
+    if(!m_bIsConnected)
         return NOT_CONNECTED;
 
-    if(bCalibrating)
-        return err;
+    if(m_bCalibrating)
+        return nErr;
 
-    err = domeCommand("SHUTTER\r", resp, SERIAL_BUFFER_SIZE);
-    if(err)
-        return err;
-    err = domeCommand("SHUTTER\r", resp, SERIAL_BUFFER_SIZE);
-    if(err)
-        return err;
+    nErr = domeCommand("SHUTTER\r", szResp, SERIAL_BUFFER_SIZE);
+    if(nErr)
+        return nErr;
+    nErr = domeCommand("SHUTTER\r", szResp, SERIAL_BUFFER_SIZE);
+    if(nErr)
+        return nErr;
 
-	shutterState = atoi(resp);
-    switch(shutterState) {
+	nShutterState = atoi(szResp);
+    switch(nShutterState) {
         case OPEN:
-            mShutterOpened = true;
+            m_bShutterOpened = true;
             break;
 
         case CLOSED:
-            mShutterOpened = false;
+            m_bShutterOpened = false;
             break;
 
         case NOT_FITTED:
-            mShutterOpened = false;
-            mHasShutter = false;
+            m_bShutterOpened = false;
+            m_bHasShutter = false;
             break;
         default:
-            mShutterOpened = false;
+            m_bShutterOpened = false;
             
     }
 
-    state = atoi(resp);
+    nState = atoi(szResp);
 
-    return err;
+    return nErr;
 }
 
 
-int CRigelDome::getDomeStepPerRev(int &stepPerRev)
+int CRigelDome::getDomeStepPerRev(int &nStepPerRev)
 {
-    int err = RD_OK;
-    char resp[SERIAL_BUFFER_SIZE];
+    int nErr = RD_OK;
+    char szResp[SERIAL_BUFFER_SIZE];
 
-    if(!bIsConnected)
+    if(!m_bIsConnected)
         return NOT_CONNECTED;
 
-    err = domeCommand("ENCREV\r", resp, SERIAL_BUFFER_SIZE);
-    if(err)
-        return err;
+    nErr = domeCommand("ENCREV\r", szResp, SERIAL_BUFFER_SIZE);
+    if(nErr)
+        return nErr;
 
-    stepPerRev = atoi(resp);
-    mNbStepPerRev = stepPerRev;
-    return err;
+    nStepPerRev = atoi(szResp);
+    m_nNbStepPerRev = nStepPerRev;
+    return nErr;
 }
 
-int CRigelDome::getBatteryLevels(double &shutterVolts, int &percent)
+int CRigelDome::getBatteryLevels(double &dShutterVolts, int &nPercent)
 {
-    int err = RD_OK;
+    int nErr = RD_OK;
     int rc = 0;
-    char resp[SERIAL_BUFFER_SIZE];
+    char szResp[SERIAL_BUFFER_SIZE];
     
-    if(!bIsConnected)
+    if(!m_bIsConnected)
         return NOT_CONNECTED;
 
-    if(bCalibrating)
-        return err;
+    if(m_bCalibrating)
+        return nErr;
     
-    err = domeCommand("BAT\r", resp, SERIAL_BUFFER_SIZE);
-    if(err)
-        return err;
+    nErr = domeCommand("BAT\r", szResp, SERIAL_BUFFER_SIZE);
+    if(nErr)
+        return nErr;
 
-    rc = sscanf(resp, "%d %lf", &percent, &shutterVolts);
+    rc = sscanf(szResp, "%d %lf", &nPercent, &dShutterVolts);
     if(rc == 0) {
         return COMMAND_FAILED;
     }
 
-    shutterVolts = shutterVolts / 1000.0;
-    return err;
+    dShutterVolts = dShutterVolts / 1000.0;
+    return nErr;
 }
 
 bool CRigelDome::hasShutterUnit() {
-    return mHasShutter;
+    return m_bHasShutter;
 }
 
-void CRigelDome::setDebugLog(bool enable)
+void CRigelDome::setDebugLog(bool bEnable)
 {
-    bDebugLog = enable;
+    m_bDebugLog = bEnable;
 }
 
-bool CRigelDome::isDomeMoving()
+int CRigelDome::isDomeMoving(bool &bIsMoving)
 {
-    bool isMoving;
     int tmp;
-    int err = RD_OK;
-    char resp[SERIAL_BUFFER_SIZE];
+    int nErr = RD_OK;
+    char szResp[SERIAL_BUFFER_SIZE];
 
-    if(!bIsConnected)
+    if(!m_bIsConnected)
         return NOT_CONNECTED;
 
-    err = domeCommand("MSTATE\r", resp, SERIAL_BUFFER_SIZE);
-    if(err) {
-        return false;   // Not really correct but will do for now.
-    }
+    nErr = domeCommand("MSTATE\r", szResp, SERIAL_BUFFER_SIZE);
+    if(nErr)
+        return nErr;
 
-    isMoving = false;
-    tmp = atoi(resp);
+    bIsMoving = false;
+    tmp = atoi(szResp);
     if(tmp != 0 || tmp != 3)
-        isMoving = true;
+        bIsMoving = true;
 
-    return isMoving;
+    return nErr;
 }
 
-bool CRigelDome::isDomeAtHome()
+int CRigelDome::isDomeAtHome(bool &bAtHome)
 {
-    bool athome;
     int tmp;
-    int err = RD_OK;
+    int nErr = RD_OK;
     char resp[SERIAL_BUFFER_SIZE];
     
-    if(!bIsConnected)
+    if(!m_bIsConnected)
         return NOT_CONNECTED;
     
-    err = domeCommand("HOME ?\r", resp, SERIAL_BUFFER_SIZE);
-    if(err)
+    nErr = domeCommand("HOME ?\r", resp, SERIAL_BUFFER_SIZE);
+    if(nErr)
         return false;
 
-    athome = false;
+    bAtHome = false;
     tmp = atoi(resp);
     if(tmp)
-        athome = true;
+        bAtHome = true;
     
-    return athome;
+    return nErr;
   
 }
 
 int CRigelDome::syncDome(double dAz, double dEl)
 {
-    int err = RD_OK;
-    char buf[SERIAL_BUFFER_SIZE];
-    char resp[SERIAL_BUFFER_SIZE];
+    int nErr = RD_OK;
+    char szBuf[SERIAL_BUFFER_SIZE];
+    char szResp[SERIAL_BUFFER_SIZE];
 
-    if(!bIsConnected)
+    if(!m_bIsConnected)
         return NOT_CONNECTED;
 
-    mCurrentAzPosition = dAz;
-    snprintf(buf, SERIAL_BUFFER_SIZE, "ANGLE K %3.1f\r", dAz);
-    err = domeCommand(buf, resp, SERIAL_BUFFER_SIZE);
-    if(err)
-        return err;
-    if(strncmp(resp,"A",1) == 0) {
-        err = RD_OK;
+    m_dCurrentAzPosition = dAz;
+    snprintf(szBuf, SERIAL_BUFFER_SIZE, "ANGLE K %3.1f\r", dAz);
+    nErr = domeCommand(szBuf, szResp, SERIAL_BUFFER_SIZE);
+    if(nErr)
+        return nErr;
+    if(strncmp(szResp,"A",1) == 0) {
+        nErr = RD_OK;
     }
     else {
-        err = RD_BAD_CMD_RESPONSE;
+        nErr = RD_BAD_CMD_RESPONSE;
     }
-    return err;
+    return nErr;
 }
 
 int CRigelDome::parkDome()
 {
-    int err = RD_OK;
-    char resp[SERIAL_BUFFER_SIZE];
+    int nErr = RD_OK;
+    char szResp[SERIAL_BUFFER_SIZE];
 
-    if(!bIsConnected)
+    if(!m_bIsConnected)
         return NOT_CONNECTED;
 
-    if(bCalibrating)
+    if(m_bCalibrating)
         return SB_OK;
 
-    err = domeCommand("GO P\r", resp, SERIAL_BUFFER_SIZE);
-    if(err)
-        return err;
+    nErr = domeCommand("GO P\r", szResp, SERIAL_BUFFER_SIZE);
+    if(nErr)
+        return nErr;
 
-    if(strncmp(resp,"A",1) == 0) {
-        err = RD_OK;
+    if(strncmp(szResp,"A",1) == 0) {
+        nErr = RD_OK;
     }
     else {
-        err = RD_BAD_CMD_RESPONSE;
+        nErr = RD_BAD_CMD_RESPONSE;
     }
-    return err;
+    return nErr;
 }
 
 int CRigelDome::unparkDome()
 {
-    mParked = false;
-    mCurrentAzPosition = mParkAz;
-    syncDome(mCurrentAzPosition,mCurrentElPosition);
+    m_bParked = false;
+    m_dCurrentAzPosition = m_dParkAz;
+    syncDome(m_dCurrentAzPosition,m_dCurrentElPosition);
     return 0;
 }
 
-int CRigelDome::gotoAzimuth(double newAz)
+int CRigelDome::gotoAzimuth(double dNewAz)
 {
 
-    int err = RD_OK;
-    char buf[SERIAL_BUFFER_SIZE];
-    char resp[SERIAL_BUFFER_SIZE];
+    int nErr = RD_OK;
+    char szBuf[SERIAL_BUFFER_SIZE];
+    char szResp[SERIAL_BUFFER_SIZE];
 
-    if(!bIsConnected)
+    if(!m_bIsConnected)
         return NOT_CONNECTED;
 
-    snprintf(buf, SERIAL_BUFFER_SIZE, "GO %3.1f\r", newAz);
-    err = domeCommand(buf, resp, SERIAL_BUFFER_SIZE);
-    if(err)
-        return err;
-    if(strncmp(resp,"A",1) == 0) {
-        err = RD_OK;
+    snprintf(szBuf, SERIAL_BUFFER_SIZE, "GO %3.1f\r", dNewAz);
+    nErr = domeCommand(szBuf, szResp, SERIAL_BUFFER_SIZE);
+    if(nErr)
+        return nErr;
+
+    if(strncmp(szResp,"A",1) == 0) {
+        nErr = RD_OK;
     }
     else {
-        err = RD_BAD_CMD_RESPONSE;
+        nErr = RD_BAD_CMD_RESPONSE;
     }
 
-    mGotoAz = newAz;
+    m_dGotoAz = dNewAz;
 
-    return err;
+    return nErr;
 }
 
 int CRigelDome::openShutter()
 {
-    int err = RD_OK;
-    char resp[SERIAL_BUFFER_SIZE];
+    int nErr = RD_OK;
+    char szResp[SERIAL_BUFFER_SIZE];
 
-    if(!bIsConnected)
+    if(!m_bIsConnected)
         return NOT_CONNECTED;
 
-    if(bCalibrating)
+    if(m_bCalibrating)
         return SB_OK;
 
-    err = domeCommand("OPEN\r", resp, SERIAL_BUFFER_SIZE);
-    if(err)
-        return err;
+    nErr = domeCommand("OPEN\r", szResp, SERIAL_BUFFER_SIZE);
+    if(nErr)
+        return nErr;
 
-    if(strncmp(resp,"A",1) == 0) {
-        err = RD_OK;
+    if(strncmp(szResp,"A",1) == 0) {
+        nErr = RD_OK;
     }
     else {
-        err = RD_BAD_CMD_RESPONSE;
+        nErr = RD_BAD_CMD_RESPONSE;
     }
-    return err;
+    return nErr;
 }
 
 int CRigelDome::closeShutter()
 {
-    int err = RD_OK;
-    char resp[SERIAL_BUFFER_SIZE];
+    int nErr = RD_OK;
+    char szResp[SERIAL_BUFFER_SIZE];
 
-    if(!bIsConnected)
+    if(!m_bIsConnected)
         return NOT_CONNECTED;
 
-    if(bCalibrating)
+    if(m_bCalibrating)
         return SB_OK;
 
-    err = domeCommand("CLOSE\r", resp, SERIAL_BUFFER_SIZE);
-    if(err)
-        return err;
+    nErr = domeCommand("CLOSE\r", szResp, SERIAL_BUFFER_SIZE);
+    if(nErr)
+        return nErr;
 
-    if(strncmp(resp,"A",1) == 0) {
-        err = RD_OK;
+    if(strncmp(szResp,"A",1) == 0) {
+        nErr = RD_OK;
     }
     else {
-        err = RD_BAD_CMD_RESPONSE;
+        nErr = RD_BAD_CMD_RESPONSE;
     }
-    return err;
+    return nErr;
 }
 
-int CRigelDome::getFirmwareVersion(char *version, int strMaxLen)
+int CRigelDome::getFirmwareVersion(char *pszVersion, int nStrMaxLen)
 {
-    int err = RD_OK;
-    char resp[SERIAL_BUFFER_SIZE];
-    double fVersion;
+    int nErr = RD_OK;
+    char szResp[SERIAL_BUFFER_SIZE];
+    double dVersion;
 
-    if(!bIsConnected)
+    if(!m_bIsConnected)
         return NOT_CONNECTED;
 
-    if(bCalibrating)
+    if(m_bCalibrating)
         return SB_OK;
 
-    err = domeCommand("VER\r", resp, SERIAL_BUFFER_SIZE);
-    if(err)
-        return err;
+    nErr = domeCommand("VER\r", szResp, SERIAL_BUFFER_SIZE);
+    if(nErr)
+        return nErr;
 
-    fVersion = atof(resp);
-    snprintf(version,strMaxLen, "%.2f",fVersion);
-    return err;
+    dVersion = atof(szResp);
+    snprintf(pszVersion, nStrMaxLen, "%.2f",dVersion);
+    return nErr;
 }
 
-int CRigelDome::getModel(char *model, int strMaxLen)
+int CRigelDome::getModel(char *pszModel, int nStrMaxLen)
 {
-    int err = RD_OK;
-    char resp[SERIAL_BUFFER_SIZE];
+    int nErr = RD_OK;
+    char szResp[SERIAL_BUFFER_SIZE];
 
-    if(!bIsConnected)
+    if(!m_bIsConnected)
         return NOT_CONNECTED;
 
-    if(bCalibrating)
+    if(m_bCalibrating)
         return SB_OK;
 
-    err = domeCommand("PULSAR\r", resp, SERIAL_BUFFER_SIZE);
-    if(err)
-        return err;
+    nErr = domeCommand("PULSAR\r", szResp, SERIAL_BUFFER_SIZE);
+    if(nErr)
+        return nErr;
 
-    strncpy(model, resp, strMaxLen);
-    return err;
+    strncpy(pszModel, szResp, nStrMaxLen);
+    return nErr;
 }
 
 int CRigelDome::goHome()
 {
-    int err = RD_OK;
-    char resp[SERIAL_BUFFER_SIZE];
+    int nErr = RD_OK;
+    char szResp[SERIAL_BUFFER_SIZE];
 
-    if(!bIsConnected)
+    if(!m_bIsConnected)
         return NOT_CONNECTED;
 
-    if(bCalibrating)
+    if(m_bCalibrating)
         return SB_OK;
 
-    err = domeCommand("GO H\r", resp, SERIAL_BUFFER_SIZE);
-    if(err)
-        return err;
+    nErr = domeCommand("GO H\r", szResp, SERIAL_BUFFER_SIZE);
+    if(nErr)
+        return nErr;
 
-    if(strncmp(resp,"A",1) == 0) {
-        err = RD_OK;
+    if(strncmp(szResp,"A",1) == 0) {
+        nErr = RD_OK;
     }
     else {
-        err = RD_BAD_CMD_RESPONSE;
+        nErr = RD_BAD_CMD_RESPONSE;
     }
-    return err;
+    return nErr;
 }
 
 int CRigelDome::calibrate()
 {
-    int err = RD_OK;
+    int nErr = RD_OK;
     char resp[SERIAL_BUFFER_SIZE];
 
-    if(!bIsConnected)
+    if(!m_bIsConnected)
         return NOT_CONNECTED;
 
-    if(bCalibrating)
+    if(m_bCalibrating)
         return SB_OK;
 
-    err = domeCommand("CALIBRATE\r", resp, SERIAL_BUFFER_SIZE);
-    if(err)
-        return err;
+    nErr = domeCommand("CALIBRATE\r", resp, SERIAL_BUFFER_SIZE);
+    if(nErr)
+        return nErr;
 
     if(strncmp(resp,"A",1) == 0) {
-        err = RD_OK;
+        nErr = RD_OK;
     }
     else {
-        err = RD_BAD_CMD_RESPONSE;
-        return err;
+        nErr = RD_BAD_CMD_RESPONSE;
+        return nErr;
     }
 
-    bCalibrating = true;
+    m_bCalibrating = true;
     
-    return err;
+    return nErr;
 }
 
-int CRigelDome::isGoToComplete(bool &complete)
+int CRigelDome::isGoToComplete(bool &bComplete)
 {
-    int err = 0;
-    double domeAz = 0;
+    int nErr = 0;
+    double dDomeAz = 0;
+    bool bIsMoving = false;
 
-    if(!bIsConnected)
+    if(!m_bIsConnected)
         return NOT_CONNECTED;
 
-    if(isDomeMoving()) {
-        complete = false;
-        getDomeAz(domeAz);
-        return err;
-    }
-
-    getDomeAz(domeAz);
-
-    if (ceil(mGotoAz) == ceil(domeAz))
-        complete = true;
-    else {
-        // we're not moving and we're not at the final destination !!!
-        if (bDebugLog) {
-            snprintf(mLogBuffer,ND_LOG_BUFFER_SIZE,"[CRigelDome::isGoToComplete] domeAz = %f, mGotoAz = %f\n", ceil(domeAz), ceil(mGotoAz));
-            mLogger->out(mLogBuffer);
+    nErr = isDomeMoving(bIsMoving);
+    if(nErr) {
+        return nErr;
         }
-        complete = false;
-        err = ERR_CMDFAILED;
+
+    if(bIsMoving) {
+        bComplete = false;
+        getDomeAz(dDomeAz);
+        return nErr;
     }
 
-    return err;
+    getDomeAz(dDomeAz);
+
+    if (ceil(m_dGotoAz) == ceil(dDomeAz))
+        bComplete = true;
+    else {
+        // we're not moving and we're not at the final destination !!!
+        if (m_bDebugLog) {
+            snprintf(m_szLogBuffer,ND_LOG_BUFFER_SIZE,"[CRigelDome::isGoToComplete] domeAz = %f, mGotoAz = %f\n", ceil(dDomeAz), ceil(m_dGotoAz));
+            m_pLogger->out(m_szLogBuffer);
+        }
+        bComplete = false;
+        nErr = ERR_CMDFAILED;
+    }
+
+    return nErr;
 }
 
-int CRigelDome::isOpenComplete(bool &complete)
+int CRigelDome::isOpenComplete(bool &bComplete)
 {
-    int err=0;
-    int state;
+    int nErr = 0;
+    int nState;
 
-    if(!bIsConnected)
+    if(!m_bIsConnected)
         return NOT_CONNECTED;
 
-    err = getShutterState(state);
-    if(err)
+    nErr = getShutterState(nState);
+    if(nErr)
         return ERR_CMDFAILED;
-    if(state == OPEN){
-        mShutterOpened = true;
-        complete = true;
-        mCurrentElPosition = 90.0;
+    if(nState == OPEN){
+        m_bShutterOpened = true;
+        bComplete = true;
+        m_dCurrentElPosition = 90.0;
     }
     else {
-        mShutterOpened = false;
-        complete = false;
-        mCurrentElPosition = 0.0;
+        m_bShutterOpened = false;
+        bComplete = false;
+        m_dCurrentElPosition = 0.0;
     }
 
-    return err;
+    return nErr;
 }
 
-int CRigelDome::isCloseComplete(bool &complete)
+int CRigelDome::isCloseComplete(bool &bComplete)
 {
     int err=0;
-    int state;
+    int nState;
 
-    if(!bIsConnected)
+    if(!m_bIsConnected)
         return NOT_CONNECTED;
 
-    err = getShutterState(state);
+    err = getShutterState(nState);
     if(err)
         return ERR_CMDFAILED;
-    if(state == CLOSED){
-        mShutterOpened = false;
-        complete = true;
-        mCurrentElPosition = 0.0;
+    if(nState == CLOSED){
+        m_bShutterOpened = false;
+        bComplete = true;
+        m_dCurrentElPosition = 0.0;
     }
     else {
-        mShutterOpened = true;
-        complete = false;
-        mCurrentElPosition = 90.0;
+        m_bShutterOpened = true;
+        bComplete = false;
+        m_dCurrentElPosition = 90.0;
     }
 
     return err;
 }
 
 
-int CRigelDome::isParkComplete(bool &complete)
+int CRigelDome::isParkComplete(bool &bComplete)
 {
-    int err = 0;
-    double domeAz=0;
+    int nErr = 0;
+    double dDomeAz=0;
+    bool bIsMoving = false;
 
-    if(!bIsConnected)
+    if(!m_bIsConnected)
         return NOT_CONNECTED;
 
-    getDomeAz(domeAz);
+    getDomeAz(dDomeAz);
+    nErr = isDomeMoving(bIsMoving);
+    if(nErr)
+        return nErr;
 
-    if(isDomeMoving()) {
-        complete = false;
-        return err;
+    if(bIsMoving) {
+        bComplete = false;
+        return nErr;
     }
 
-    if (ceil(mParkAz) == ceil(domeAz))
+    if (ceil(m_dParkAz) == ceil(dDomeAz))
     {
-        mParked = true;
-        complete = true;
+        m_bParked = true;
+        bComplete = true;
     }
     else {
         // we're not moving and we're not at the final destination !!!
-        complete = false;
-        mHomed = false;
-        mParked = false;
-        err = ERR_CMDFAILED;
+        bComplete = false;
+        m_bHomed = false;
+        m_bParked = false;
+        nErr = ERR_CMDFAILED;
     }
 
-    return err;
+    return nErr;
 }
 
-int CRigelDome::isUnparkComplete(bool &complete)
+int CRigelDome::isUnparkComplete(bool &bComplete)
 {
-    int err=0;
+    int nErr = 0;
 
-    if(!bIsConnected)
+    if(!m_bIsConnected)
         return NOT_CONNECTED;
 
-    mParked = false;
-    complete = true;
+    m_bParked = false;
+    bComplete = true;
 
-    return err;
+    return nErr;
 }
 
-int CRigelDome::isFindHomeComplete(bool &complete)
+int CRigelDome::isFindHomeComplete(bool &bComplete)
 {
-    int err = 0;
+    int nErr = 0;
+    bool bIsMoving = false;
+    bool bIsAtHome = false;
 
-    if(!bIsConnected)
+    if(!m_bIsConnected)
         return NOT_CONNECTED;
 
-    if(isDomeMoving()) {
-        mHomed = false;
-        complete = false;
-        return err;
+    nErr = isDomeMoving(bIsMoving);
+    if(nErr)
+        return nErr;
+
+    if(bIsMoving) {
+        m_bHomed = false;
+        bComplete = false;
+        return nErr;
     }
 
-    if(isDomeAtHome()){
-        mHomed = true;
-        complete = true;
+    nErr = isDomeAtHome(bIsAtHome);
+    if(nErr)
+        return nErr;
+
+    if(bIsAtHome){
+        m_bHomed = true;
+        bComplete = true;
     }
     else {
         // we're not moving and we're not at the home position !!!
-        if (bDebugLog) {
-            snprintf(mLogBuffer,ND_LOG_BUFFER_SIZE,"[CRigelDome::isFindHomeComplete] Not moving and not at home !!!\n");
-            mLogger->out(mLogBuffer);
+        if (m_bDebugLog) {
+            snprintf(m_szLogBuffer,ND_LOG_BUFFER_SIZE,"[CRigelDome::isFindHomeComplete] Not moving and not at home !!!\n");
+            m_pLogger->out(m_szLogBuffer);
         }
-        complete = false;
-        mHomed = false;
-        mParked = false;
-        err = ERR_CMDFAILED;
+        bComplete = false;
+        m_bHomed = false;
+        m_bParked = false;
+        nErr = ERR_CMDFAILED;
     }
 
-    return err;
+    return nErr;
 }
 
 
-int CRigelDome::isCalibratingComplete(bool &complete)
+int CRigelDome::isCalibratingComplete(bool &bComplete)
 {
-    int err = 0;
-    double domeAz = 0;
+    int nErr = 0;
+    double dDomeAz = 0;
+    bool bIsMoving = false;
 
-    if(!bIsConnected)
+    if(!m_bIsConnected)
         return NOT_CONNECTED;
 
-    if(isDomeMoving()) {
-        getDomeAz(domeAz);
-        mHomed = false;
-        complete = false;
-        return err;
-    }
+    nErr = isDomeMoving(bIsMoving);
+    if(nErr)
+        return nErr;
 
+    if(bIsMoving) {
+        getDomeAz(dDomeAz);
+        m_bHomed = false;
+        bComplete = false;
+        return nErr;
+    }
     
-    err = getDomeAz(domeAz);
+    nErr = getDomeAz(dDomeAz);
 
-    if (ceil(mHomeAz) != ceil(domeAz)) {
+    if (ceil(m_dHomeAz) != ceil(dDomeAz)) {
         // We need to resync the current position to the home position.
-        mCurrentAzPosition = mHomeAz;
-        syncDome(mCurrentAzPosition,mCurrentElPosition);
-        mHomed = true;
-        complete = true;
+        m_dCurrentAzPosition = m_dHomeAz;
+        syncDome(m_dCurrentAzPosition,m_dCurrentElPosition);
+        m_bHomed = true;
+        bComplete = true;
     }
 
-    err = getDomeStepPerRev(mNbStepPerRev);
-    mHomed = true;
-    complete = true;
-    bCalibrating = false;
-    return err;
+    nErr = getDomeStepPerRev(m_nNbStepPerRev);
+    m_bHomed = true;
+    bComplete = true;
+    m_bCalibrating = false;
+    return nErr;
 }
 
 
 int CRigelDome::abortCurrentCommand()
 {
-    if(!bIsConnected)
+    if(!m_bIsConnected)
         return NOT_CONNECTED;
 
-    bCalibrating = false;
+    m_bCalibrating = false;
 
     return (domeCommand("STOP\r", NULL, SERIAL_BUFFER_SIZE));
 }
@@ -841,99 +863,101 @@ int CRigelDome::abortCurrentCommand()
 
 int CRigelDome::getNbTicksPerRev()
 {
-    if(bIsConnected)
-        getDomeStepPerRev(mNbStepPerRev);
-    return mNbStepPerRev;
+    if(m_bIsConnected)
+        getDomeStepPerRev(m_nNbStepPerRev);
+    return m_nNbStepPerRev;
 }
 
 
 double CRigelDome::getHomeAz()
 {
-    if(bIsConnected)
-        getDomeHomeAz(mHomeAz);
+    if(m_bIsConnected)
+        getDomeHomeAz(m_dHomeAz);
 
-    return mHomeAz;
+    return m_dHomeAz;
 }
 
 int CRigelDome::setHomeAz(double dAz)
 {
-    int err = RD_OK;
-    char buf[SERIAL_BUFFER_SIZE];
-    char resp[SERIAL_BUFFER_SIZE];
+    int nErr = RD_OK;
+    char szBuf[SERIAL_BUFFER_SIZE];
+    char szResp[SERIAL_BUFFER_SIZE];
 
-    if(!bIsConnected)
+    if(!m_bIsConnected)
         return NOT_CONNECTED;
 
-    snprintf(buf, SERIAL_BUFFER_SIZE, "HOME %3.1f\r", dAz);
-    err = domeCommand(buf, resp, SERIAL_BUFFER_SIZE);
-    if(err)
-        return err;
-    if(strncmp(resp,"A",1) == 0) {
-        err = RD_OK;
+    snprintf(szBuf, SERIAL_BUFFER_SIZE, "HOME %3.1f\r", dAz);
+    nErr = domeCommand(szBuf, szResp, SERIAL_BUFFER_SIZE);
+    if(nErr)
+        return nErr;
+
+    if(strncmp(szResp,"A",1) == 0) {
+        nErr = RD_OK;
     }
     else {
-        err = RD_BAD_CMD_RESPONSE;
+        nErr = RD_BAD_CMD_RESPONSE;
     }
-    mHomeAz = dAz;
-    return err;
+    m_dHomeAz = dAz;
+    return nErr;
 }
 
 
 double CRigelDome::getParkAz()
 {
-    if(bIsConnected)
-        getDomeParkAz(mParkAz);
+    if(m_bIsConnected)
+        getDomeParkAz(m_dParkAz);
 
-    return mParkAz;
+    return m_dParkAz;
 
 }
 
 int CRigelDome::setParkAz(double dAz)
 {
-    int err = RD_OK;
-    char buf[SERIAL_BUFFER_SIZE];
-    char resp[SERIAL_BUFFER_SIZE];
+    int nErr = RD_OK;
+    char szBuf[SERIAL_BUFFER_SIZE];
+    char szResp[SERIAL_BUFFER_SIZE];
 
-    if(!bIsConnected)
+    if(!m_bIsConnected)
         return NOT_CONNECTED;
 
-    snprintf(buf, SERIAL_BUFFER_SIZE, "PARK %3.1f\r", dAz);
-    err = domeCommand(buf, resp, SERIAL_BUFFER_SIZE);
-    if(err)
-        return err;
-    if(strncmp(resp,"A",1) == 0) {
-        err = RD_OK;
+    snprintf(szBuf, SERIAL_BUFFER_SIZE, "PARK %3.1f\r", dAz);
+    nErr = domeCommand(szBuf, szResp, SERIAL_BUFFER_SIZE);
+    if(nErr)
+        return nErr;
+
+    if(strncmp(szResp,"A",1) == 0) {
+        nErr = RD_OK;
     }
     else {
-        err = RD_BAD_CMD_RESPONSE;
+        nErr = RD_BAD_CMD_RESPONSE;
     }
 
-    mParkAz = dAz;
-    return err;
+    m_dParkAz = dAz;
+    return nErr;
 }
 
 
 double CRigelDome::getCurrentAz()
 {
-    if(bIsConnected)
-        getDomeAz(mCurrentAzPosition);
+    if(m_bIsConnected)
+        getDomeAz(m_dCurrentAzPosition);
     
-    return mCurrentAzPosition;
+    return m_dCurrentAzPosition;
 }
 
 double CRigelDome::getCurrentEl()
 {
-    if(bIsConnected)
-        getDomeEl(mCurrentElPosition);
+    if(m_bIsConnected)
+        getDomeEl(m_dCurrentElPosition);
     
-    return mCurrentElPosition;
+    return m_dCurrentElPosition;
 }
 
 int CRigelDome::getCurrentShutterState()
 {
-    if(bIsConnected)
-        getShutterState(mShutterState);
+    if(m_bIsConnected)
+        getShutterState(m_nShutterState);
 
-    return mShutterState;
+    return m_nShutterState;
 }
 
