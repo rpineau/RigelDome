@@ -47,13 +47,13 @@ CRigelDome::~CRigelDome()
 
 }
 
-int CRigelDome::Connect(const char *szPort)
+int CRigelDome::Connect(const char *pszPort)
 {
     int nErr;
     int nState;
 
     // 9600 8N1
-    if(m_pSerx->open(szPort, 115200, SerXInterface::B_NOPARITY, "-DTR_CONTROL 1") == 0)
+    if(m_pSerx->open(pszPort, 115200, SerXInterface::B_NOPARITY, "-DTR_CONTROL 1") == 0)
         m_bIsConnected = true;
     else
         m_bIsConnected = false;
@@ -107,18 +107,18 @@ void CRigelDome::Disconnect()
 }
 
 
-int CRigelDome::readResponse(char *szRespBuffer, int nBufferLen)
+int CRigelDome::readResponse(char *pszRespBuffer, int nBufferLen)
 {
     int nErr = RD_OK;
     unsigned long ulBytesRead = 0;
     unsigned long ulTotalBytesRead = 0;
-    char *szBufPtr;
+    char *pszBufPtr;
 
-    memset(szRespBuffer, 0, (size_t) nBufferLen);
-    szBufPtr = szRespBuffer;
+    memset(pszRespBuffer, 0, (size_t) nBufferLen);
+    pszBufPtr = pszRespBuffer;
 
     do {
-        nErr = m_pSerx->readFile(szBufPtr, 1, ulBytesRead, MAX_TIMEOUT);
+        nErr = m_pSerx->readFile(pszBufPtr, 1, ulBytesRead, MAX_TIMEOUT);
         if(nErr) {
             if (m_bDebugLog) {
                 snprintf(m_szLogBuffer,ND_LOG_BUFFER_SIZE,"[CRigelDome::readResponse] readFile error.\n");
@@ -128,7 +128,7 @@ int CRigelDome::readResponse(char *szRespBuffer, int nBufferLen)
         }
 
         if (m_bDebugLog) {
-            snprintf(m_szLogBuffer,ND_LOG_BUFFER_SIZE,"[CRigelDome::readResponse] respBuffer = %s\n",szRespBuffer);
+            snprintf(m_szLogBuffer,ND_LOG_BUFFER_SIZE,"[CRigelDome::readResponse] respBuffer = %s\n",pszRespBuffer);
             m_pLogger->out(m_szLogBuffer);
         }
         
@@ -145,14 +145,14 @@ int CRigelDome::readResponse(char *szRespBuffer, int nBufferLen)
             snprintf(m_szLogBuffer,ND_LOG_BUFFER_SIZE,"[CRigelDome::readResponse] nBytesRead = %lu\n",ulBytesRead);
             m_pLogger->out(m_szLogBuffer);
         }
-    } while (*szBufPtr++ != 0x0D && ulTotalBytesRead < nBufferLen );
+    } while (*pszBufPtr++ != 0x0D && ulTotalBytesRead < nBufferLen );
 
-    *szBufPtr = 0; //remove the \r
+    *pszBufPtr = 0; //remove the \r
     return nErr;
 }
 
 
-int CRigelDome::domeCommand(const char *szCmd, char *szResult, int nResultMaxLen)
+int CRigelDome::domeCommand(const char *pszCmd, char *pszResult, int nResultMaxLen)
 {
     int nErr = RD_OK;
     char szResp[SERIAL_BUFFER_SIZE];
@@ -160,10 +160,10 @@ int CRigelDome::domeCommand(const char *szCmd, char *szResult, int nResultMaxLen
 
     m_pSerx->purgeTxRx();
     if (m_bDebugLog) {
-        snprintf(m_szLogBuffer,ND_LOG_BUFFER_SIZE,"[CRigelDome::domeCommand] Sending %s\n",szCmd);
+        snprintf(m_szLogBuffer,ND_LOG_BUFFER_SIZE,"[CRigelDome::domeCommand] Sending %s\n",pszCmd);
         m_pLogger->out(m_szLogBuffer);
     }
-    nErr = m_pSerx->writeFile((void *)szCmd, strlen(szCmd), ulBytesWrite);
+    nErr = m_pSerx->writeFile((void *)pszCmd, strlen(pszCmd), ulBytesWrite);
     m_pSerx->flushTx();
     if(nErr)
         return nErr;
@@ -176,8 +176,8 @@ int CRigelDome::domeCommand(const char *szCmd, char *szResult, int nResultMaxLen
     if(nErr)
         return nErr;
 
-    if(szResult)
-        strncpy(szResult, &szResp[1], nResultMaxLen);
+    if(pszResult)
+        strncpy(pszResult, &szResp[1], nResultMaxLen);
 
     return nErr;
 
@@ -540,7 +540,7 @@ int CRigelDome::closeShutter()
     return nErr;
 }
 
-int CRigelDome::getFirmwareVersion(char *szVersion, int nStrMaxLen)
+int CRigelDome::getFirmwareVersion(char *pszVersion, int nStrMaxLen)
 {
     int nErr = RD_OK;
     char szResp[SERIAL_BUFFER_SIZE];
@@ -557,11 +557,11 @@ int CRigelDome::getFirmwareVersion(char *szVersion, int nStrMaxLen)
         return nErr;
 
     dVersion = atof(szResp);
-    snprintf(szVersion, nStrMaxLen, "%.2f",dVersion);
+    snprintf(pszVersion, nStrMaxLen, "%.2f",dVersion);
     return nErr;
 }
 
-int CRigelDome::getModel(char *szModel, int nStrMaxLen)
+int CRigelDome::getModel(char *pszModel, int nStrMaxLen)
 {
     int nErr = RD_OK;
     char szResp[SERIAL_BUFFER_SIZE];
@@ -576,7 +576,7 @@ int CRigelDome::getModel(char *szModel, int nStrMaxLen)
     if(nErr)
         return nErr;
 
-    strncpy(szModel, szResp, nStrMaxLen);
+    strncpy(pszModel, szResp, nStrMaxLen);
     return nErr;
 }
 

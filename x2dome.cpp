@@ -613,10 +613,10 @@ void X2Dome::portName(BasicStringInterface& str) const
 
 }
 
-void X2Dome::setPortName(const char* szPort)
+void X2Dome::setPortName(const char* pszPort)
 {
     if (m_pIniUtil)
-        m_pIniUtil->writeString(PARENT_KEY, CHILD_KEY_PORTNAME, szPort);
+        m_pIniUtil->writeString(PARENT_KEY, CHILD_KEY_PORTNAME, pszPort);
     
 }
 
