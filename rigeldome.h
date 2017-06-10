@@ -1,12 +1,11 @@
 //
-//  nexdome.h
-//  NexDome
+//  rigeldome.h
 //
 //  Created by Rodolphe Pineau on 6/11/2016.
-//  NexDome X2 plugin
+//  Rigel rotation drive unit for Pulsar Dome X2 plugin
 
-#ifndef __NEXDOME__
-#define __NEXDOME__
+#ifndef __RIGEL_DOME__
+#define __RIGEL_DOME__
 #include <math.h>
 #include <string.h>
 #include "../../licensedinterfaces/sberrorx.h"
@@ -30,10 +29,10 @@ public:
 
     int        Connect(const char *szPort);
     void        Disconnect(void);
-    bool        IsConnected(void) { return bIsConnected; }
+    bool        IsConnected(void) { return m_bIsConnected; }
 
-    void        SetSerxPointer(SerXInterface *p) { pSerx = p; }
-    void        setLogger(LoggerInterface *pLogger) { mLogger = pLogger; };
+    void        SetSerxPointer(SerXInterface *p) { m_pSerx = p; }
+    void        setLogger(LoggerInterface *pLogger) { m_pLogger = pLogger; };
 
     // Dome commands
     int syncDome(double dAz, double dEl);
@@ -80,47 +79,47 @@ public:
 
 protected:
     
-    int             readResponse(char *respBuffer, int bufferLen);
-    int             getDomeAz(double &domeAz);
-    int             getDomeEl(double &domeEl);
-    int             getDomeHomeAz(double &Az);
-    int             getDomeParkAz(double &Az);
-    int             getShutterState(int &state);
-    int             getDomeStepPerRev(int &stepPerRev);
+    int             readResponse(char *pszRespBuffer, int bufferLen);
+    int             getDomeAz(double &dDomeAz);
+    int             getDomeEl(double &dDomeEl);
+    int             getDomeHomeAz(double &dAz);
+    int             getDomeParkAz(double &dAz);
+    int             getShutterState(int &nState);
+    int             getDomeStepPerRev(int &nStepPerRev);
 
-    bool            isDomeMoving();
-    bool            isDomeAtHome();
+    int             isDomeMoving(bool &bIsMoving);
+    int             isDomeAtHome(bool &bAtHome);
     
-    int             domeCommand(const char *cmd, char *result, int resultMaxLen);
+    int             domeCommand(const char *pszCmd, char *pszResult, int nResultMaxLen);
 
-    LoggerInterface *mLogger;
-    bool            bDebugLog;
+    LoggerInterface *m_pLogger;
+    bool            m_bDebugLog;
     
-    bool            bIsConnected;
-    bool            mHomed;
-    bool            mParked;
-    bool            bCalibrating;
+    bool            m_bIsConnected;
+    bool            m_bHomed;
+    bool            m_bParked;
+    bool            m_bCalibrating;
     
-    int             mNbStepPerRev;
-    double          mShutterBatteryVolts;
-    double          mShutterBatteryPercent;
-    double          mHomeAz;
+    int             m_nNbStepPerRev;
+    double          m_dShutterBatteryVolts;
+    double          m_dShutterBatteryPercent;
+    double          m_dHomeAz;
     
-    double          mParkAz;
+    double          m_dParkAz;
 
-    double          mCurrentAzPosition;
-    double          mCurrentElPosition;
+    double          m_dCurrentAzPosition;
+    double          m_dCurrentElPosition;
 
-    double          mGotoAz;
+    double          m_dGotoAz;
     
-    SerXInterface   *pSerx;
+    SerXInterface   *m_pSerx;
     
-    char            firmwareVersion[SERIAL_BUFFER_SIZE];
-    int             mShutterState;
-    bool            mHasShutter;
-    bool            mShutterOpened;
+    char            m_szFirmwareVersion[SERIAL_BUFFER_SIZE];
+    int             m_nShutterState;
+    bool            m_bHasShutter;
+    bool            m_bShutterOpened;
 
-    char            mLogBuffer[ND_LOG_BUFFER_SIZE];
+    char            m_szLogBuffer[ND_LOG_BUFFER_SIZE];
 
 };
 
