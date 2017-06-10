@@ -147,7 +147,9 @@ int CRigelDome::readResponse(char *pszRespBuffer, int nBufferLen)
         }
     } while (*pszBufPtr++ != 0x0D && ulTotalBytesRead < nBufferLen );
 
-    *pszBufPtr = 0; //remove the \r
+    if(ulTotalBytesRead)
+        *(pszBufPtr-1) = 0; //remove the \r
+
     return nErr;
 }
 
