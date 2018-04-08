@@ -40,6 +40,30 @@ CRigelDome::CRigelDome()
     m_bHomed = false;
     memset(m_szFirmwareVersion,0,SERIAL_BUFFER_SIZE);
     memset(m_szLogBuffer,0,ND_LOG_BUFFER_SIZE);
+
+#ifdef RIGEL_DEBUG
+#if defined(SB_WIN_BUILD)
+    m_sLogfilePath = getenv("HOMEDRIVE");
+    m_sLogfilePath += getenv("HOMEPATH");
+    m_sLogfilePath += "\\RigelLog.txt";
+#elif defined(SB_LINUX_BUILD)
+    m_sLogfilePath = getenv("HOME");
+    m_sLogfilePath += "/RigelLog.txt";
+#elif defined(SB_MAC_BUILD)
+    m_sLogfilePath = getenv("HOME");
+    m_sLogfilePath += "/RigelLog.txt";
+#endif
+    Logfile = fopen(m_sLogfilePath.c_str(), "w");
+#endif
+
+#if defined RIGEL_DEBUG && RIGEL_DEBUG >= 2
+    ltime = time(NULL);
+    timestamp = asctime(localtime(&ltime));
+    timestamp[strlen(timestamp) - 1] = 0;
+    fprintf(Logfile, "[%s] CRigelDome Constructor Called\n", timestamp);
+    fflush(Logfile);
+#endif
+
 }
 
 CRigelDome::~CRigelDome()
@@ -52,7 +76,15 @@ int CRigelDome::Connect(const char *pszPort)
     int nErr;
     int nState;
 
-    // 9600 8N1
+#if defined RIGEL_DEBUG && RIGEL_DEBUG >= 2
+    ltime = time(NULL);
+    timestamp = asctime(localtime(&ltime));
+    timestamp[strlen(timestamp) - 1] = 0;
+    fprintf(Logfile, "[%s] [CRigelDome::Connect] Connect called.\n", timestamp);
+    fflush(Logfile);
+#endif
+
+    // 115200 8N1
     if(m_pSerx->open(pszPort, 115200, SerXInterface::B_NOPARITY, "-DTR_CONTROL 1") == 0)
         m_bIsConnected = true;
     else
@@ -61,29 +93,38 @@ int CRigelDome::Connect(const char *pszPort)
     if(!m_bIsConnected)
         return ERR_COMMNOLINK;
 
-    if (m_bDebugLog) {
-        snprintf(m_szLogBuffer,ND_LOG_BUFFER_SIZE,"[CRigelDome::Connect] Connected.\n");
-        m_pLogger->out(m_szLogBuffer);
+#if defined RIGEL_DEBUG && RIGEL_DEBUG >= 2
+    ltime = time(NULL);
+    timestamp = asctime(localtime(&ltime));
+    timestamp[strlen(timestamp) - 1] = 0;
+    fprintf(Logfile, "[%s] [CRigelDome::Connect] Connected.\n", timestamp);
+    fprintf(Logfile, "[%s] [CRigelDome::Connect] Getting Firmware.\n", timestamp);
+    fflush(Logfile);
+#endif
 
-        snprintf(m_szLogBuffer,ND_LOG_BUFFER_SIZE,"[CRigelDome::Connect] Getting Firmware.\n");
-        m_pLogger->out(m_szLogBuffer);
-    }
     // if this fails we're not properly connected.
     nErr = getFirmwareVersion(m_szFirmwareVersion, SERIAL_BUFFER_SIZE);
     if(nErr) {
-        if (m_bDebugLog) {
-            snprintf(m_szLogBuffer,ND_LOG_BUFFER_SIZE,"[CRigelDome::Connect] Error Getting Firmware.\n");
-            m_pLogger->out(m_szLogBuffer);
-        }
+#if defined RIGEL_DEBUG && RIGEL_DEBUG >= 2
+        ltime = time(NULL);
+        timestamp = asctime(localtime(&ltime));
+        timestamp[strlen(timestamp) - 1] = 0;
+        fprintf(Logfile, "[%s] [CRigelDome::Connect] Error Getting Firmware : err = %d\n", timestamp, nErr);
+        fflush(Logfile);
+#endif
         m_bIsConnected = false;
         m_pSerx->close();
-        return FIRMWARE_NOT_SUPPORTED;
+        return ERR_CMDFAILED;
     }
 
-    if (m_bDebugLog) {
-        snprintf(m_szLogBuffer,ND_LOG_BUFFER_SIZE,"[CRigelDome::Connect] Got Firmware.\n");
-        m_pLogger->out(m_szLogBuffer);
-    }
+#if defined RIGEL_DEBUG && RIGEL_DEBUG >= 2
+    ltime = time(NULL);
+    timestamp = asctime(localtime(&ltime));
+    timestamp[strlen(timestamp) - 1] = 0;
+    fprintf(Logfile, "[%s] [CRigelDome::Connect] Got Firmware : %s\n", timestamp, m_szFirmwareVersion);
+    fflush(Logfile);
+#endif
+
     // assume the dome was parked
     getDomeParkAz(m_dCurrentAzPosition);
 
@@ -120,31 +161,36 @@ int CRigelDome::readResponse(char *pszRespBuffer, int nBufferLen)
     do {
         nErr = m_pSerx->readFile(pszBufPtr, 1, ulBytesRead, MAX_TIMEOUT);
         if(nErr) {
-            if (m_bDebugLog) {
-                snprintf(m_szLogBuffer,ND_LOG_BUFFER_SIZE,"[CRigelDome::readResponse] readFile error.\n");
-                m_pLogger->out(m_szLogBuffer);
-            }
+#if defined RIGEL_DEBUG && RIGEL_DEBUG >= 2
+            ltime = time(NULL);
+            timestamp = asctime(localtime(&ltime));
+            timestamp[strlen(timestamp) - 1] = 0;
+            fprintf(Logfile, "[%s] [CRigelDome::readResponse] readFile error.\n", timestamp);
+            fflush(Logfile);
+#endif
             return nErr;
         }
 
-        if (m_bDebugLog) {
-            snprintf(m_szLogBuffer,ND_LOG_BUFFER_SIZE,"[CRigelDome::readResponse] respBuffer = %s\n",pszRespBuffer);
-            m_pLogger->out(m_szLogBuffer);
-        }
-        
+#if defined RIGEL_DEBUG && RIGEL_DEBUG >= 2
+        ltime = time(NULL);
+        timestamp = asctime(localtime(&ltime));
+        timestamp[strlen(timestamp) - 1] = 0;
+        fprintf(Logfile, "[%s] [CRigelDome::readResponse] respBuffer = %s\n", timestamp, pszRespBuffer);
+        fflush(Logfile);
+#endif
+
         if (ulBytesRead !=1) {// timeout
-            if (m_bDebugLog) {
-                snprintf(m_szLogBuffer,ND_LOG_BUFFER_SIZE,"[CRigelDome::readResponse] readFile Timeout.\n");
-                m_pLogger->out(m_szLogBuffer);
-            }
+#if defined RIGEL_DEBUG && RIGEL_DEBUG >= 2
+            ltime = time(NULL);
+            timestamp = asctime(localtime(&ltime));
+            timestamp[strlen(timestamp) - 1] = 0;
+            fprintf(Logfile, "[%s] [CRigelDome::readResponse] readFile Timeout.\n", timestamp);
+            fflush(Logfile);
+#endif
             nErr = RD_BAD_CMD_RESPONSE;
             break;
         }
         ulTotalBytesRead += ulBytesRead;
-        if (m_bDebugLog) {
-            snprintf(m_szLogBuffer,ND_LOG_BUFFER_SIZE,"[CRigelDome::readResponse] nBytesRead = %lu\n",ulBytesRead);
-            m_pLogger->out(m_szLogBuffer);
-        }
     } while (*pszBufPtr++ != 0x0D && ulTotalBytesRead < nBufferLen );
 
     if(ulTotalBytesRead)
@@ -161,25 +207,35 @@ int CRigelDome::domeCommand(const char *pszCmd, char *pszResult, int nResultMaxL
     unsigned long  ulBytesWrite;
 
     m_pSerx->purgeTxRx();
-    if (m_bDebugLog) {
-        snprintf(m_szLogBuffer,ND_LOG_BUFFER_SIZE,"[CRigelDome::domeCommand] Sending %s\n",pszCmd);
-        m_pLogger->out(m_szLogBuffer);
-    }
+
+#if defined RIGEL_DEBUG && RIGEL_DEBUG >= 2
+    ltime = time(NULL);
+    timestamp = asctime(localtime(&ltime));
+    timestamp[strlen(timestamp) - 1] = 0;
+    fprintf(Logfile, "[%s] [CRigelDome::domeCommand] Sending %s\n", timestamp, pszCmd);
+    fflush(Logfile);
+#endif
+
     nErr = m_pSerx->writeFile((void *)pszCmd, strlen(pszCmd), ulBytesWrite);
     m_pSerx->flushTx();
     if(nErr)
         return nErr;
+
     // read response
-    if (m_bDebugLog) {
-        snprintf(m_szLogBuffer,ND_LOG_BUFFER_SIZE,"[CRigelDome::domeCommand] Getting response.\n");
-        m_pLogger->out(m_szLogBuffer);
-    }
     nErr = readResponse(szResp, SERIAL_BUFFER_SIZE);
+#if defined RIGEL_DEBUG && RIGEL_DEBUG >= 2
+    ltime = time(NULL);
+    timestamp = asctime(localtime(&ltime));
+    timestamp[strlen(timestamp) - 1] = 0;
+    fprintf(Logfile, "[%s] [CRigelDome::domeCommand] response  code is %d with data : %s\n", timestamp, nErr, szResp);
+    fflush(Logfile);
+#endif
+
     if(nErr)
         return nErr;
 
     if(pszResult)
-        strncpy(pszResult, &szResp[1], nResultMaxLen);
+        strncpy(pszResult, szResp, nResultMaxLen);
 
     return nErr;
 
@@ -656,14 +712,17 @@ int CRigelDome::isGoToComplete(bool &bComplete)
 
     getDomeAz(dDomeAz);
 
-    if (ceil(m_dGotoAz) == ceil(dDomeAz))
+    if ((floor(m_dGotoAz) <= floor(dDomeAz)+1) && (floor(m_dGotoAz) >= floor(dDomeAz)-1))
         bComplete = true;
     else {
         // we're not moving and we're not at the final destination !!!
-        if (m_bDebugLog) {
-            snprintf(m_szLogBuffer,ND_LOG_BUFFER_SIZE,"[CRigelDome::isGoToComplete] domeAz = %f, mGotoAz = %f\n", ceil(dDomeAz), ceil(m_dGotoAz));
-            m_pLogger->out(m_szLogBuffer);
-        }
+#if defined RIGEL_DEBUG && RIGEL_DEBUG >= 2
+        ltime = time(NULL);
+        timestamp = asctime(localtime(&ltime));
+        timestamp[strlen(timestamp) - 1] = 0;
+        fprintf(Logfile, "[%s] [CRigelDome::isGoToComplete] domeAz = %f, mGotoAz = %f\n", timestamp, ceil(dDomeAz), ceil(m_dGotoAz));
+        fflush(Logfile);
+#endif
         bComplete = false;
         nErr = ERR_CMDFAILED;
     }
@@ -819,8 +878,31 @@ int CRigelDome::isCalibratingComplete(bool &bComplete)
     double dDomeAz = 0;
     bool bIsMoving = false;
 
+    bComplete = false;
+
     if(!m_bIsConnected)
         return NOT_CONNECTED;
+
+    // new version of the test
+    nErr = getExtendedState();
+    if(nErr)
+        return nErr;
+
+    if(m_nMotorState == CALIBRATIG) {
+        bComplete = false;
+        return nErr;
+    }
+    else if (m_nMotorState == IDLE){
+        bComplete = true;
+        return nErr;
+    }
+    else {
+        // probably still moving
+        bComplete = false;
+        return nErr;
+    }
+
+    // old version of the test.
 
     nErr = isDomeMoving(bIsMoving);
     if(nErr)
@@ -963,3 +1045,61 @@ int CRigelDome::getCurrentShutterState()
     return m_nShutterState;
 }
 
+int CRigelDome::getExtendedState()
+{
+    int nErr = RD_OK;
+    char szResp[SERIAL_BUFFER_SIZE];
+    std::vector<std::string> vFields;
+
+    if(!m_bIsConnected)
+        return NOT_CONNECTED;
+
+    nErr = domeCommand("V\r", szResp, SERIAL_BUFFER_SIZE);
+    if(nErr)
+        return nErr;
+    // szResp contains the 13 state fields.
+    nErr = parseFields(szResp, vFields, '\t');
+    if(vFields.size()>=13) {
+        m_dCurrentAzPosition = atof(vFields[0].c_str());
+        m_nMotorState = atoi(vFields[1].c_str());
+        m_nShutterState = atoi(vFields[5].c_str());
+        switch(m_nShutterState) {
+            case OPEN:
+                m_bShutterOpened = true;
+                break;
+
+            case CLOSED:
+                m_bShutterOpened = false;
+                break;
+
+            case NOT_FITTED:
+                m_bShutterOpened = false;
+                m_bHasShutter = false;
+                break;
+            default:
+                m_bShutterOpened = false;
+
+        }
+    }
+    return nErr;
+}
+
+
+int CRigelDome::parseFields(const char *pszResp, std::vector<std::string> &svFields, char cSeparator)
+{
+    int nErr = RD_OK;
+    std::string sSegment;
+    std::stringstream ssTmp(pszResp);
+
+    svFields.clear();
+    // split the string into vector elements
+    while(std::getline(ssTmp, sSegment, cSeparator))
+    {
+        svFields.push_back(sSegment);
+    }
+
+    if(svFields.size()==0) {
+        nErr = ERR_CMDFAILED;
+    }
+    return nErr;
+}

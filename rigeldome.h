@@ -8,9 +8,18 @@
 #define __RIGEL_DOME__
 #include <math.h>
 #include <string.h>
+#include <time.h>
+
+#include <string>
+#include <vector>
+#include <sstream>
+#include <iostream>
+
 #include "../../licensedinterfaces/sberrorx.h"
 #include "../../licensedinterfaces/serxinterface.h"
 #include "../../licensedinterfaces/loggerinterface.h"
+
+#define RIGEL_DEBUG 2
 
 #define SERIAL_BUFFER_SIZE 20
 #define MAX_TIMEOUT 5000
@@ -20,6 +29,7 @@
 // Error code
 enum RigelDomeErrors {RD_OK=0, NOT_CONNECTED, RD_CANT_CONNECT, RD_BAD_CMD_RESPONSE, COMMAND_FAILED};
 enum RigelDomeShutterState {OPEN=0, CLOSED, OPENING, CLOSING, SHUTTER_ERROR, UNKNOWN, NOT_FITTED};
+enum RigelMotorState {IDLE=0, MOVING_TO_TARGET, MOVING_TO_VELOCITY, MOVING_AT_SIDEREAL, MOVING_ANTICLOCKWISE, MOVING_CLOCKWISE, CALIBRATIG, GOING_HOME};
 
 class CRigelDome
 {
@@ -91,7 +101,9 @@ protected:
     int             isDomeAtHome(bool &bAtHome);
     
     int             domeCommand(const char *pszCmd, char *pszResult, int nResultMaxLen);
-
+    int             getExtendedState();
+    int             parseFields(const char *pszResp, std::vector<std::string> &svFields, char cSeparator);
+    
     LoggerInterface *m_pLogger;
     bool            m_bDebugLog;
     
@@ -120,6 +132,15 @@ protected:
     bool            m_bShutterOpened;
 
     char            m_szLogBuffer[ND_LOG_BUFFER_SIZE];
+    int             m_nMotorState;
+
+#ifdef RIGEL_DEBUG
+    std::string m_sLogfilePath;
+    // timestamp for logs
+    char *timestamp;
+    time_t ltime;
+    FILE *Logfile;      // LogFile
+#endif
 
 };
 
