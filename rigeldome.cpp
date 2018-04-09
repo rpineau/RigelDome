@@ -124,11 +124,8 @@ int CRigelDome::Connect(const char *pszPort)
     fprintf(Logfile, "[%s] [CRigelDome::Connect] Got Firmware : %s\n", timestamp, m_szFirmwareVersion);
     fflush(Logfile);
 #endif
+    nErr = connectToShutter();
 
-    // assume the dome was parked
-    getDomeParkAz(m_dCurrentAzPosition);
-
-    syncDome(m_dCurrentAzPosition,m_dCurrentElPosition);
     nErr = getShutterState(nState);
 
     if(nState != NOT_FITTED && nState != UNKNOWN )
@@ -337,11 +334,10 @@ int CRigelDome::getShutterState(int &nState)
     nErr = domeCommand("SHUTTER\r", szResp, SERIAL_BUFFER_SIZE);
     if(nErr)
         return nErr;
-    nErr = domeCommand("SHUTTER\r", szResp, SERIAL_BUFFER_SIZE);
-    if(nErr)
-        return nErr;
 
 	nShutterState = atoi(szResp);
+    m_bHasShutter = true;
+
     switch(nShutterState) {
         case OPEN:
             m_bShutterOpened = true;
@@ -351,10 +347,16 @@ int CRigelDome::getShutterState(int &nState)
             m_bShutterOpened = false;
             break;
 
-        case NOT_FITTED:
-            m_bShutterOpened = false;
-            m_bHasShutter = false;
+        case OPENING:
+        case CLOSING:
             break;
+
+        //case NOT_FITTED:
+        //    m_bShutterOpened = false;
+            // m_bHasShutter = false;
+            // temp fix
+        //    m_bHasShutter = true;
+        //    break;
         default:
             m_bShutterOpened = false;
             
@@ -432,7 +434,7 @@ int CRigelDome::isDomeMoving(bool &bIsMoving)
 
     bIsMoving = false;
     tmp = atoi(szResp);
-    if(tmp != 0 || tmp != 3)
+    if(tmp != 0 && tmp != 3)
         bIsMoving = true;
 
     return nErr;
@@ -446,18 +448,33 @@ int CRigelDome::isDomeAtHome(bool &bAtHome)
     
     if(!m_bIsConnected)
         return NOT_CONNECTED;
-    
-    nErr = domeCommand("HOME ?\r", resp, SERIAL_BUFFER_SIZE);
-    if(nErr)
-        return false;
 
     bAtHome = false;
+
+    nErr = domeCommand("HOME ?\r", resp, SERIAL_BUFFER_SIZE);
+    if(nErr)
+        return ERR_CMDFAILED;
+
     tmp = atoi(resp);
     if(tmp)
         bAtHome = true;
     
     return nErr;
   
+}
+
+int CRigelDome::connectToShutter()
+{
+    int tmp;
+    int nErr = RD_OK;
+    char resp[SERIAL_BUFFER_SIZE];
+
+    if(!m_bIsConnected)
+        return NOT_CONNECTED;
+
+    nErr = domeCommand("BBOND 1\r", resp, SERIAL_BUFFER_SIZE);
+
+    return nErr;
 }
 
 int CRigelDome::syncDome(double dAz, double dEl)

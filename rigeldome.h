@@ -99,7 +99,9 @@ protected:
 
     int             isDomeMoving(bool &bIsMoving);
     int             isDomeAtHome(bool &bAtHome);
-    
+
+    int             connectToShutter();
+
     int             domeCommand(const char *pszCmd, char *pszResult, int nResultMaxLen);
     int             getExtendedState();
     int             parseFields(const char *pszResp, std::vector<std::string> &svFields, char cSeparator);
