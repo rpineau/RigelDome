@@ -171,14 +171,6 @@ int CRigelDome::readResponse(char *pszRespBuffer, int nBufferLen)
             return nErr;
         }
 
-#if defined RIGEL_DEBUG && RIGEL_DEBUG >= 2
-        ltime = time(NULL);
-        timestamp = asctime(localtime(&ltime));
-        timestamp[strlen(timestamp) - 1] = 0;
-        fprintf(Logfile, "[%s] [CRigelDome::readResponse] respBuffer = %s\n", timestamp, pszRespBuffer);
-        fflush(Logfile);
-#endif
-
         if (ulBytesRead !=1) {// timeout
 #if defined RIGEL_DEBUG && RIGEL_DEBUG >= 2
             ltime = time(NULL);
@@ -704,23 +696,45 @@ int CRigelDome::isGoToComplete(bool &bComplete)
         return nErr;
         }
 
+    getDomeAz(dDomeAz);
+
     if(bIsMoving) {
+#if defined RIGEL_DEBUG && RIGEL_DEBUG >= 2
+        ltime = time(NULL);
+        timestamp = asctime(localtime(&ltime));
+        timestamp[strlen(timestamp) - 1] = 0;
+        fprintf(Logfile, "[%s] [CRigelDome::isGoToComplete] Dome is moving, domeAz = %f, mGotoAz = %f\n", timestamp, ceil(dDomeAz), ceil(m_dGotoAz));
+        fflush(Logfile);
+#endif
         bComplete = false;
-        getDomeAz(dDomeAz);
         return nErr;
     }
 
-    getDomeAz(dDomeAz);
+#if defined RIGEL_DEBUG && RIGEL_DEBUG >= 2
+    ltime = time(NULL);
+    timestamp = asctime(localtime(&ltime));
+    timestamp[strlen(timestamp) - 1] = 0;
+    fprintf(Logfile, "[%s] [CRigelDome::isGoToComplete] Dome is NOT moving, domeAz = %f, mGotoAz = %f\n", timestamp, ceil(dDomeAz), ceil(m_dGotoAz));
+    fflush(Logfile);
+#endif
 
-    if ((floor(m_dGotoAz) <= floor(dDomeAz)+1) && (floor(m_dGotoAz) >= floor(dDomeAz)-1))
+    if ((floor(m_dGotoAz) <= floor(dDomeAz)+1) && (floor(m_dGotoAz) >= floor(dDomeAz)-1)) {
+#if defined RIGEL_DEBUG && RIGEL_DEBUG >= 2
+        ltime = time(NULL);
+        timestamp = asctime(localtime(&ltime));
+        timestamp[strlen(timestamp) - 1] = 0;
+        fprintf(Logfile, "[%s] [CRigelDome::isGoToComplete] GOTO completed.\n", timestamp);
+        fflush(Logfile);
+#endif
         bComplete = true;
+    }
     else {
         // we're not moving and we're not at the final destination !!!
 #if defined RIGEL_DEBUG && RIGEL_DEBUG >= 2
         ltime = time(NULL);
         timestamp = asctime(localtime(&ltime));
         timestamp[strlen(timestamp) - 1] = 0;
-        fprintf(Logfile, "[%s] [CRigelDome::isGoToComplete] domeAz = %f, mGotoAz = %f\n", timestamp, ceil(dDomeAz), ceil(m_dGotoAz));
+        fprintf(Logfile, "[%s] [CRigelDome::isGoToComplete] GOTO ERROR, not moving but not at target\n", timestamp);
         fflush(Logfile);
 #endif
         bComplete = false;
@@ -800,8 +814,7 @@ int CRigelDome::isParkComplete(bool &bComplete)
         return nErr;
     }
 
-    if (ceil(m_dParkAz) == ceil(dDomeAz))
-    {
+    if ((floor(m_dParkAz) <= floor(dDomeAz)+1) && (floor(m_dGotoAz) >= floor(dDomeAz)-1)) {
         m_bParked = true;
         bComplete = true;
     }

@@ -29,6 +29,9 @@ if [ ! -z "$app_owner" ]; then
 	chown $app_owner "$TheSkyX_Path/Resources/Common/PlugIns/DomePlugIns/Pulsar.png"
 	chown $app_owner "$TheSkyX_Path/Resources/Common/PlugIns/DomePlugIns/libRigelDome.dylib"
 fi
-chmod  755 "$TheSkyX_Path/Resources/Common/PlugIns/DomePlugIns/libRigelDome.dylib"
+chmod 644 "$TheSkyX_Path/Resources/Common/Miscellaneous Files/domelist RigelDome.txt"
+chmod 755 "$TheSkyX_Path/Resources/Common/PlugIns/DomePlugIns/libRigelDome.dylib"
+chmod 644 "$TheSkyX_Path/Resources/Common/PlugIns/DomePlugIns/RigelDome.ui"
+chmod 644 "$TheSkyX_Path/Resources/Common/PlugIns/DomePlugIns/Pulsar.png"
 rm -rf /tmp/RigelDome_X2
 
