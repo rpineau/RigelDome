@@ -125,7 +125,7 @@ int CRigelDome::Connect(const char *pszPort)
     fflush(Logfile);
 #endif
     nErr = connectToShutter();
-
+    // nErr = btForce();
     nErr = getShutterState(nState);
 
     if(nState != NOT_FITTED && nState != UNKNOWN )
@@ -324,12 +324,20 @@ int CRigelDome::getShutterState(int &nState)
     int nErr = RD_OK;
     char szResp[SERIAL_BUFFER_SIZE];
     int nShutterState;
+    bool bShutterConnected;
 
     if(!m_bIsConnected)
         return NOT_CONNECTED;
 
     if(m_bCalibrating)
         return nErr;
+
+    nErr = isConnectedToShutter(bShutterConnected);
+    if(nErr)
+        return nErr;
+
+    if(!bShutterConnected)
+        return NOT_CONNECTED;
 
     nErr = domeCommand("SHUTTER\r", szResp, SERIAL_BUFFER_SIZE);
     if(nErr)
@@ -473,7 +481,40 @@ int CRigelDome::connectToShutter()
         return NOT_CONNECTED;
 
     nErr = domeCommand("BBOND 1\r", resp, SERIAL_BUFFER_SIZE);
+    return nErr;
+}
 
+int CRigelDome::isConnectedToShutter(bool &bConnected)
+{
+    int tmp;
+    int nErr = RD_OK;
+    char resp[SERIAL_BUFFER_SIZE];
+
+    if(!m_bIsConnected)
+        return NOT_CONNECTED;
+    bConnected = false;
+
+    nErr = domeCommand("BBOND\r", resp, SERIAL_BUFFER_SIZE);
+    if(nErr)
+        return nErr;
+
+    tmp = atoi(resp);
+    if(tmp)
+        bConnected = true;
+
+    return nErr;
+}
+
+int CRigelDome::btForce()
+{
+    int tmp;
+    int nErr = RD_OK;
+    char resp[SERIAL_BUFFER_SIZE];
+
+    if(!m_bIsConnected)
+        return NOT_CONNECTED;
+
+    nErr = domeCommand("BTFORCE\r", resp, SERIAL_BUFFER_SIZE);
     return nErr;
 }
 

@@ -19,7 +19,7 @@
 #include "../../licensedinterfaces/serxinterface.h"
 #include "../../licensedinterfaces/loggerinterface.h"
 
-#define RIGEL_DEBUG 2
+// #define RIGEL_DEBUG 2
 
 #define SERIAL_BUFFER_SIZE 20
 #define MAX_TIMEOUT 5000
@@ -101,7 +101,8 @@ protected:
     int             isDomeAtHome(bool &bAtHome);
 
     int             connectToShutter();
-
+    int             isConnectedToShutter(bool &bConnected);
+    int             btForce();
     int             domeCommand(const char *pszCmd, char *pszResult, int nResultMaxLen);
     int             getExtendedState();
     int             parseFields(const char *pszResp, std::vector<std::string> &svFields, char cSeparator);
