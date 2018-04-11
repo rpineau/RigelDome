@@ -83,7 +83,9 @@ int X2Dome::establishLink(void)
     else
         m_bLinked = true;
 
-    m_bHasShutterControl = m_RigelDome.hasShutterUnit();
+    //m_bHasShutterControl = m_RigelDome.hasShutterUnit();
+    // temp fix
+    m_bHasShutterControl = true;
 	return nErr;
 }
 
