@@ -26,14 +26,14 @@ fi
 
 cp "./domelist RigelDome.txt" "$TheSkyX_Path/Resources/Common/Miscellaneous Files/"
 cp "./RigelDome.ui" "$TheSkyX_Path/Resources/Common/PlugIns/DomePlugIns/"
-cp "./RigelDome.png" "$TheSkyX_Path/Resources/Common/PlugIns/DomePlugIns/"
+cp "./Pulsar.png" "$TheSkyX_Path/Resources/Common/PlugIns/DomePlugIns/"
 cp "./libRigelDome.so" "$TheSkyX_Path/Resources/Common/PlugIns/DomePlugIns/"
 
 app_owner=`/usr/bin/stat -c "%u" "$TheSkyX_Path" | xargs id -n -u`
 if [ ! -z "$app_owner" ]; then
 	chown $app_owner "$TheSkyX_Path/Resources/Common/Miscellaneous Files/domelist RigelDome.txt"
 	chown $app_owner "$TheSkyX_Path/Resources/Common/PlugIns/DomePlugIns/RigelDome.ui"
-	chown $app_owner "$TheSkyX_Path/Resources/Common/PlugIns/DomePlugIns/RigelDome.png"
+	chown $app_owner "$TheSkyX_Path/Resources/Common/PlugIns/DomePlugIns/Pulsar.png"
 	chown $app_owner "$TheSkyX_Path/Resources/Common/PlugIns/DomePlugIns/libRigelDome.so"
 fi
 chmod  755 "$TheSkyX_Path/Resources/Common/PlugIns/DomePlugIns/libRigelDome.so"
