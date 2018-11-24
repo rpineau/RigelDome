@@ -6,9 +6,7 @@ echo "TheSkyX_Install = $TheSkyX_Install"
 if [ ! -f "$TheSkyX_Install" ]; then
     echo TheSkyXInstallPath.txt not found
     TheSkyX_Path=`/usr/bin/find ~/ -maxdepth 3 -name TheSkyX`
-    if [ -d "$TheSkyX_Path" ]; then
-		TheSkyX_Path="${TheSkyX_Path}/Contents"
-    else
+    if [ ! -d "$TheSkyX_Path" ]; then
 	   echo TheSkyX application was not found.
     	exit 1
 	 fi
@@ -24,17 +22,23 @@ if [ ! -d "$TheSkyX_Path" ]; then
     exit 1
 fi
 
+if [ -d "$TheSkyX_Path/Resources/Common/PlugIns64" ]; then
+	PLUGINS_DIR="PlugIns64"
+else
+	PLUGINS_DIR="PlugIns"
+fi
+
 cp "./domelist RigelDome.txt" "$TheSkyX_Path/Resources/Common/Miscellaneous Files/"
-cp "./RigelDome.ui" "$TheSkyX_Path/Resources/Common/PlugIns/DomePlugIns/"
-cp "./Pulsar.png" "$TheSkyX_Path/Resources/Common/PlugIns/DomePlugIns/"
-cp "./libRigelDome.so" "$TheSkyX_Path/Resources/Common/PlugIns/DomePlugIns/"
+cp "./RigelDome.ui" "$TheSkyX_Path/Resources/Common/$PLUGINS_DIR/DomePlugIns/"
+cp "./Pulsar.png" "$TheSkyX_Path/Resources/Common/$PLUGINS_DIR/DomePlugIns/"
+cp "./libRigelDome.so" "$TheSkyX_Path/Resources/Common/$PLUGINS_DIR/DomePlugIns/"
 
 app_owner=`/usr/bin/stat -c "%u" "$TheSkyX_Path" | xargs id -n -u`
 if [ ! -z "$app_owner" ]; then
 	chown $app_owner "$TheSkyX_Path/Resources/Common/Miscellaneous Files/domelist RigelDome.txt"
-	chown $app_owner "$TheSkyX_Path/Resources/Common/PlugIns/DomePlugIns/RigelDome.ui"
-	chown $app_owner "$TheSkyX_Path/Resources/Common/PlugIns/DomePlugIns/Pulsar.png"
-	chown $app_owner "$TheSkyX_Path/Resources/Common/PlugIns/DomePlugIns/libRigelDome.so"
+	chown $app_owner "$TheSkyX_Path/Resources/Common/$PLUGINS_DIR/DomePlugIns/RigelDome.ui"
+	chown $app_owner "$TheSkyX_Path/Resources/Common/$PLUGINS_DIR/DomePlugIns/Pulsar.png"
+	chown $app_owner "$TheSkyX_Path/Resources/Common/$PLUGINS_DIR/DomePlugIns/libRigelDome.so"
 fi
-chmod  755 "$TheSkyX_Path/Resources/Common/PlugIns/DomePlugIns/libRigelDome.so"
+chmod  755 "$TheSkyX_Path/Resources/Common/$PLUGINS_DIR/DomePlugIns/libRigelDome.so"
 
