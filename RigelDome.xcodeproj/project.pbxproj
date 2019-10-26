@@ -7,76 +7,76 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		9322CC931E2D9E1100A8E881 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9322CC921E2D9E1100A8E881 /* IOKit.framework */; };
-		9322CC951E2D9E1B00A8E881 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9322CC941E2D9E1B00A8E881 /* CoreFoundation.framework */; };
-		9322CC9D1E2D9F9A00A8E881 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9322CC971E2D9F9A00A8E881 /* main.cpp */; };
-		9322CC9E1E2D9F9A00A8E881 /* main.h in Headers */ = {isa = PBXBuildFile; fileRef = 9322CC981E2D9F9A00A8E881 /* main.h */; };
-		9322CC9F1E2D9F9A00A8E881 /* rigeldome.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9322CC991E2D9F9A00A8E881 /* rigeldome.cpp */; };
-		9322CCA01E2D9F9A00A8E881 /* rigeldome.h in Headers */ = {isa = PBXBuildFile; fileRef = 9322CC9A1E2D9F9A00A8E881 /* rigeldome.h */; };
-		9322CCA11E2D9F9A00A8E881 /* x2dome.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9322CC9B1E2D9F9A00A8E881 /* x2dome.cpp */; };
-		9322CCA21E2D9F9A00A8E881 /* x2dome.h in Headers */ = {isa = PBXBuildFile; fileRef = 9322CC9C1E2D9F9A00A8E881 /* x2dome.h */; };
+		938EAFDA1D0C84F700ED2086 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 938EAFD61D0C84F700ED2086 /* main.cpp */; };
+		938EAFDB1D0C84F700ED2086 /* main.h in Headers */ = {isa = PBXBuildFile; fileRef = 938EAFD71D0C84F700ED2086 /* main.h */; };
+		938EAFDC1D0C84F700ED2086 /* x2dome.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 938EAFD81D0C84F700ED2086 /* x2dome.cpp */; };
+		938EAFDD1D0C84F700ED2086 /* x2dome.h in Headers */ = {isa = PBXBuildFile; fileRef = 938EAFD91D0C84F700ED2086 /* x2dome.h */; };
+		938EAFE01D0C858700ED2086 /* rigeldome.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 938EAFDE1D0C858700ED2086 /* rigeldome.cpp */; };
+		938EAFE11D0C858700ED2086 /* rigeldome.h in Headers */ = {isa = PBXBuildFile; fileRef = 938EAFDF1D0C858700ED2086 /* rigeldome.h */; };
+		938EAFE31D0C988800ED2086 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 938EAFE21D0C988800ED2086 /* IOKit.framework */; };
+		938EAFE51D0C989400ED2086 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 938EAFE41D0C989400ED2086 /* CoreFoundation.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		9322CC8A1E2D9DEE00A8E881 /* libRigelDome.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libRigelDome.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
-		9322CC921E2D9E1100A8E881 /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
-		9322CC941E2D9E1B00A8E881 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
-		9322CC971E2D9F9A00A8E881 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
-		9322CC981E2D9F9A00A8E881 /* main.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = main.h; sourceTree = "<group>"; };
-		9322CC991E2D9F9A00A8E881 /* rigeldome.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = rigeldome.cpp; sourceTree = "<group>"; };
-		9322CC9A1E2D9F9A00A8E881 /* rigeldome.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rigeldome.h; sourceTree = "<group>"; };
-		9322CC9B1E2D9F9A00A8E881 /* x2dome.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = x2dome.cpp; sourceTree = "<group>"; };
-		9322CC9C1E2D9F9A00A8E881 /* x2dome.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = x2dome.h; sourceTree = "<group>"; };
+		938EAFCD1D0C83E900ED2086 /* libRigelDome.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libRigelDome.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		938EAFD61D0C84F700ED2086 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		938EAFD71D0C84F700ED2086 /* main.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = main.h; sourceTree = "<group>"; };
+		938EAFD81D0C84F700ED2086 /* x2dome.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = x2dome.cpp; sourceTree = "<group>"; };
+		938EAFD91D0C84F700ED2086 /* x2dome.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = x2dome.h; sourceTree = "<group>"; };
+		938EAFDE1D0C858700ED2086 /* rigeldome.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = rigeldome.cpp; sourceTree = "<group>"; };
+		938EAFDF1D0C858700ED2086 /* rigeldome.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rigeldome.h; sourceTree = "<group>"; };
+		938EAFE21D0C988800ED2086 /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
+		938EAFE41D0C989400ED2086 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		9322CC871E2D9DEE00A8E881 /* Frameworks */ = {
+		938EAFCA1D0C83E900ED2086 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9322CC951E2D9E1B00A8E881 /* CoreFoundation.framework in Frameworks */,
-				9322CC931E2D9E1100A8E881 /* IOKit.framework in Frameworks */,
+				938EAFE51D0C989400ED2086 /* CoreFoundation.framework in Frameworks */,
+				938EAFE31D0C988800ED2086 /* IOKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		9322CC811E2D9DEE00A8E881 = {
+		938EAFC41D0C83E900ED2086 = {
 			isa = PBXGroup;
 			children = (
-				9322CC961E2D9F1300A8E881 /* Sources */,
-				9322CC8B1E2D9DEE00A8E881 /* Products */,
-				9322CC911E2D9E1100A8E881 /* Frameworks */,
+				938EAFD51D0C84E900ED2086 /* Sources */,
+				938EAFD41D0C84DF00ED2086 /* Frameworks */,
+				938EAFCE1D0C83E900ED2086 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
-		9322CC8B1E2D9DEE00A8E881 /* Products */ = {
+		938EAFCE1D0C83E900ED2086 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				9322CC8A1E2D9DEE00A8E881 /* libRigelDome.dylib */,
+				938EAFCD1D0C83E900ED2086 /* libRigelDome.dylib */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		9322CC911E2D9E1100A8E881 /* Frameworks */ = {
+		938EAFD41D0C84DF00ED2086 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				9322CC941E2D9E1B00A8E881 /* CoreFoundation.framework */,
-				9322CC921E2D9E1100A8E881 /* IOKit.framework */,
+				938EAFE41D0C989400ED2086 /* CoreFoundation.framework */,
+				938EAFE21D0C988800ED2086 /* IOKit.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		9322CC961E2D9F1300A8E881 /* Sources */ = {
+		938EAFD51D0C84E900ED2086 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
-				9322CC971E2D9F9A00A8E881 /* main.cpp */,
-				9322CC981E2D9F9A00A8E881 /* main.h */,
-				9322CC991E2D9F9A00A8E881 /* rigeldome.cpp */,
-				9322CC9A1E2D9F9A00A8E881 /* rigeldome.h */,
-				9322CC9B1E2D9F9A00A8E881 /* x2dome.cpp */,
-				9322CC9C1E2D9F9A00A8E881 /* x2dome.h */,
+				938EAFDE1D0C858700ED2086 /* rigeldome.cpp */,
+				938EAFDF1D0C858700ED2086 /* rigeldome.h */,
+				938EAFD61D0C84F700ED2086 /* main.cpp */,
+				938EAFD71D0C84F700ED2086 /* main.h */,
+				938EAFD81D0C84F700ED2086 /* x2dome.cpp */,
+				938EAFD91D0C84F700ED2086 /* x2dome.h */,
 			);
 			name = Sources;
 			sourceTree = "<group>";
@@ -84,26 +84,26 @@
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
-		9322CC881E2D9DEE00A8E881 /* Headers */ = {
+		938EAFCB1D0C83E900ED2086 /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9322CC9E1E2D9F9A00A8E881 /* main.h in Headers */,
-				9322CCA01E2D9F9A00A8E881 /* rigeldome.h in Headers */,
-				9322CCA21E2D9F9A00A8E881 /* x2dome.h in Headers */,
+				938EAFE11D0C858700ED2086 /* rigeldome.h in Headers */,
+				938EAFDB1D0C84F700ED2086 /* main.h in Headers */,
+				938EAFDD1D0C84F700ED2086 /* x2dome.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		9322CC891E2D9DEE00A8E881 /* RigelDome */ = {
+		938EAFCC1D0C83E900ED2086 /* RigelDome */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 9322CC8E1E2D9DEE00A8E881 /* Build configuration list for PBXNativeTarget "RigelDome" */;
+			buildConfigurationList = 938EAFD11D0C83E900ED2086 /* Build configuration list for PBXNativeTarget "RigelDome" */;
 			buildPhases = (
-				9322CC861E2D9DEE00A8E881 /* Sources */,
-				9322CC871E2D9DEE00A8E881 /* Frameworks */,
-				9322CC881E2D9DEE00A8E881 /* Headers */,
+				938EAFC91D0C83E900ED2086 /* Sources */,
+				938EAFCA1D0C83E900ED2086 /* Frameworks */,
+				938EAFCB1D0C83E900ED2086 /* Headers */,
 			);
 			buildRules = (
 			);
@@ -111,81 +111,89 @@
 			);
 			name = RigelDome;
 			productName = RigelDome;
-			productReference = 9322CC8A1E2D9DEE00A8E881 /* libRigelDome.dylib */;
+			productReference = 938EAFCD1D0C83E900ED2086 /* libRigelDome.dylib */;
 			productType = "com.apple.product-type.library.dynamic";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		9322CC821E2D9DEE00A8E881 /* Project object */ = {
+		938EAFC51D0C83E900ED2086 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0820;
+				LastUpgradeCheck = 0940;
 				ORGANIZATIONNAME = "RTI-Zone";
 				TargetAttributes = {
-					9322CC891E2D9DEE00A8E881 = {
-						CreatedOnToolsVersion = 8.2.1;
+					938EAFCC1D0C83E900ED2086 = {
+						CreatedOnToolsVersion = 7.3.1;
 						DevelopmentTeam = PB97QXVYQC;
-						ProvisioningStyle = Automatic;
 					};
 				};
 			};
-			buildConfigurationList = 9322CC851E2D9DEE00A8E881 /* Build configuration list for PBXProject "RigelDome" */;
+			buildConfigurationList = 938EAFC81D0C83E900ED2086 /* Build configuration list for PBXProject "RigelDome" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 			);
-			mainGroup = 9322CC811E2D9DEE00A8E881;
-			productRefGroup = 9322CC8B1E2D9DEE00A8E881 /* Products */;
+			mainGroup = 938EAFC41D0C83E900ED2086;
+			productRefGroup = 938EAFCE1D0C83E900ED2086 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				9322CC891E2D9DEE00A8E881 /* RigelDome */,
+				938EAFCC1D0C83E900ED2086 /* RigelDome */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXSourcesBuildPhase section */
-		9322CC861E2D9DEE00A8E881 /* Sources */ = {
+		938EAFC91D0C83E900ED2086 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9322CCA11E2D9F9A00A8E881 /* x2dome.cpp in Sources */,
-				9322CC9F1E2D9F9A00A8E881 /* rigeldome.cpp in Sources */,
-				9322CC9D1E2D9F9A00A8E881 /* main.cpp in Sources */,
+				938EAFDC1D0C84F700ED2086 /* x2dome.cpp in Sources */,
+				938EAFDA1D0C84F700ED2086 /* main.cpp in Sources */,
+				938EAFE01D0C858700ED2086 /* rigeldome.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		9322CC8C1E2D9DEE00A8E881 /* Debug */ = {
+		938EAFCF1D0C83E900ED2086 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				ARCHS = "$(ARCHS_STANDARD)";
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
-				CLANG_CXX_LIBRARY = "libstdc++";
+				CLANG_CXX_LIBRARY = "compiler-default";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_IDENTITY = "Apple Development";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = PB97QXVYQC;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
@@ -202,39 +210,47 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = NO;
 				SDKROOT = macosx;
-				VALID_ARCHS = "i386 x86_64";
+				VALID_ARCHS = x86_64;
 			};
 			name = Debug;
 		};
-		9322CC8D1E2D9DEE00A8E881 /* Release */ = {
+		938EAFD01D0C83E900ED2086 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				ARCHS = "$(ARCHS_STANDARD)";
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
-				CLANG_CXX_LIBRARY = "libstdc++";
+				CLANG_CXX_LIBRARY = "compiler-default";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_IDENTITY = "Apple Development";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = PB97QXVYQC;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
@@ -245,42 +261,42 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				MTL_ENABLE_DEBUG_INFO = NO;
+				ONLY_ACTIVE_ARCH = NO;
 				SDKROOT = macosx;
-				VALID_ARCHS = "i386 x86_64";
+				VALID_ARCHS = x86_64;
 			};
 			name = Release;
 		};
-		9322CC8F1E2D9DEE00A8E881 /* Debug */ = {
+		938EAFD21D0C83E900ED2086 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
-				CLANG_CXX_LIBRARY = "libstdc++";
-				CODE_SIGN_IDENTITY = "";
+				ARCHS = "$(ARCHS_STANDARD)";
+				CLANG_CXX_LIBRARY = "compiler-default";
+				CODE_SIGN_IDENTITY = "Apple Development";
 				DEVELOPMENT_TEAM = PB97QXVYQC;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				EXECUTABLE_PREFIX = lib;
-				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				"GCC_PREPROCESSOR_DEFINITIONS[arch=*]" = SB_MAC_BUILD;
 				HEADER_SEARCH_PATHS = (
 					"\"$(SRCROOT)/\"",
 					"\"$(SRCROOT)/../..\"",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				VALID_ARCHS = "i386 x86_64";
+				VALID_ARCHS = x86_64;
 			};
 			name = Debug;
 		};
-		9322CC901E2D9DEE00A8E881 /* Release */ = {
+		938EAFD31D0C83E900ED2086 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
-				CLANG_CXX_LIBRARY = "libstdc++";
-				CODE_SIGN_IDENTITY = "";
+				ARCHS = "$(ARCHS_STANDARD)";
+				CLANG_CXX_LIBRARY = "compiler-default";
+				CODE_SIGN_IDENTITY = "Apple Development";
 				DEVELOPMENT_TEAM = PB97QXVYQC;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -290,35 +306,34 @@
 					"\"$(SRCROOT)/\"",
 					"\"$(SRCROOT)/../..\"",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.6;
-				ONLY_ACTIVE_ARCH = NO;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				VALID_ARCHS = "i386 x86_64";
+				VALID_ARCHS = x86_64;
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		9322CC851E2D9DEE00A8E881 /* Build configuration list for PBXProject "RigelDome" */ = {
+		938EAFC81D0C83E900ED2086 /* Build configuration list for PBXProject "RigelDome" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				9322CC8C1E2D9DEE00A8E881 /* Debug */,
-				9322CC8D1E2D9DEE00A8E881 /* Release */,
+				938EAFCF1D0C83E900ED2086 /* Debug */,
+				938EAFD01D0C83E900ED2086 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		9322CC8E1E2D9DEE00A8E881 /* Build configuration list for PBXNativeTarget "RigelDome" */ = {
+		938EAFD11D0C83E900ED2086 /* Build configuration list for PBXNativeTarget "RigelDome" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				9322CC8F1E2D9DEE00A8E881 /* Debug */,
-				9322CC901E2D9DEE00A8E881 /* Release */,
+				938EAFD21D0C83E900ED2086 /* Debug */,
+				938EAFD31D0C83E900ED2086 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
-	rootObject = 9322CC821E2D9DEE00A8E881 /* Project object */;
+	rootObject = 938EAFC51D0C83E900ED2086 /* Project object */;
 }

@@ -41,8 +41,9 @@ X2Dome::X2Dome(const char* pszSelection,
     m_RigelDome.SetSerxPointer(pSerX);
     m_RigelDome.setLogger(pLogger);
 
-    if (m_pIniUtil)
-    {   
+    if (m_pIniUtil) {
+        m_bShutterEventLog = m_pIniUtil->readInt(PARENT_KEY, CHILD_KEY_LOG_EVENT, 0);
+        m_RigelDome.setDebugLog( m_bShutterEventLog );
         m_RigelDome.setHomeAz( m_pIniUtil->readDouble(PARENT_KEY, CHILD_KEY_HOME_AZ, 180) );
         m_RigelDome.setParkAz( m_pIniUtil->readDouble(PARENT_KEY, CHILD_KEY_PARK_AZ, 180) );
     }
@@ -133,7 +134,6 @@ int X2Dome::execModalSettingsDialog()
     double dParkAz;
     int nShutterBatteryPercent;
     double dShutterBattery;
-    
 
     if (NULL == ui)
         return ERR_POINTER;
@@ -168,6 +168,9 @@ int X2Dome::execModalSettingsDialog()
             snprintf(szTmpBuf,16,"NA");
             dx->setPropertyString("shutterBatteryLevel","text", szTmpBuf);
         }
+        if(m_bShutterEventLog)
+            dx->setChecked("enableEventLog",false);
+
         dx->setEnabled("pushButton",true);
     }
     else {
@@ -175,6 +178,8 @@ int X2Dome::execModalSettingsDialog()
         dx->setPropertyString("ticksPerRev","text", szTmpBuf);
         dx->setPropertyString("shutterBatteryLevel","text", szTmpBuf);
         dx->setEnabled("pushButton",false);
+        dx->setEnabled("pushButton_2",false);
+        dx->setEnabled("enableEventLog",false);
     }
     dx->setPropertyDouble("homePosition","value", m_RigelDome.getHomeAz());
     dx->setPropertyDouble("parkPosition","value", m_RigelDome.getParkAz());
@@ -193,7 +198,8 @@ int X2Dome::execModalSettingsDialog()
     {
         dx->propertyDouble("homePosition", "value", dHomeAz);
         dx->propertyDouble("parkPosition", "value", dParkAz);
-
+        m_bShutterEventLog = dx->isChecked("enableEventLog");
+        m_RigelDome.setDebugLog(m_bShutterEventLog);
         if(m_bLinked)
         {
             m_RigelDome.setHomeAz(dHomeAz);
@@ -201,6 +207,7 @@ int X2Dome::execModalSettingsDialog()
         }
 
         // save the values to persistent storage
+        nErr |= m_pIniUtil->writeInt(PARENT_KEY, CHILD_KEY_LOG_EVENT, m_bShutterEventLog);
         nErr |= m_pIniUtil->writeDouble(PARENT_KEY, CHILD_KEY_HOME_AZ, dHomeAz);
         nErr |= m_pIniUtil->writeDouble(PARENT_KEY, CHILD_KEY_PARK_AZ, dParkAz);
     }
@@ -281,6 +288,12 @@ void X2Dome::uiEvent(X2GUIExchangeInterface* uiex, const char* pszEvent)
         }
     }
 
+    if (!strcmp(pszEvent, "on_pushButton_2_clicked"))
+    {
+        if(m_bLinked) {
+            m_RigelDome.btForce();
+        }
+    }
 }
 
 //

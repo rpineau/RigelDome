@@ -19,6 +19,7 @@
 #include "../../licensedinterfaces/serxinterface.h"
 #include "../../licensedinterfaces/loggerinterface.h"
 
+#define DRIVER_VERSION      1.2
 // #define RIGEL_DEBUG 2
 
 #define SERIAL_BUFFER_SIZE 20
@@ -84,6 +85,7 @@ public:
     int getBatteryLevels(double &shutterVolts, int &percent);
 
     bool hasShutterUnit();
+    int  btForce();
 
     void setDebugLog(bool enable);
 
@@ -102,7 +104,6 @@ protected:
 
     int             connectToShutter();
     int             isConnectedToShutter(bool &bConnected);
-    int             btForce();
     int             domeCommand(const char *pszCmd, char *pszResult, int nResultMaxLen);
     int             getExtendedState();
     int             parseFields(const char *pszResp, std::vector<std::string> &svFields, char cSeparator);
@@ -137,11 +138,12 @@ protected:
     char            m_szLogBuffer[ND_LOG_BUFFER_SIZE];
     int             m_nMotorState;
 
-#ifdef RIGEL_DEBUG
-    std::string m_sLogfilePath;
     // timestamp for logs
     char *timestamp;
     time_t ltime;
+
+#ifdef RIGEL_DEBUG
+    std::string m_sLogfilePath;
     FILE *Logfile;      // LogFile
 #endif
 
