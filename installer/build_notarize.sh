@@ -7,7 +7,7 @@ cp "../domelist RigelDome.txt" ROOT/tmp/RigelDome_X2/
 cp "../build/Release/libRigelDome.dylib" ROOT/tmp/RigelDome_X2/
 
 PACKAGE_NAME="RigelDome_X2.pkg"
-BUNDLE_NAME="org.rti-zone.RigelDome_X2 "
+BUNDLE_NAME="org.rti-zone.RigelDomeX2 "
 
 if [ ! -z "$installer_signature" ]; then
 	# signed package using env variable installer_signature
