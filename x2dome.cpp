@@ -155,7 +155,12 @@ int X2Dome::execModalSettingsDialog()
         dx->setChecked("hasShutterCtrl",false);
     }
 
-    // set controls state depending on the connection state
+	if(m_bShutterEventLog)
+		dx->setChecked("enableEventLog",true);
+	else
+		dx->setChecked("enableEventLog",false);
+
+	// set controls state depending on the connection state
     if(m_bLinked) {
         snprintf(szTmpBuf,16,"%d",m_RigelDome.getNbTicksPerRev());
         dx->setPropertyString("ticksPerRev","text", szTmpBuf);
@@ -168,8 +173,6 @@ int X2Dome::execModalSettingsDialog()
             snprintf(szTmpBuf,16,"NA");
             dx->setPropertyString("shutterBatteryLevel","text", szTmpBuf);
         }
-        if(m_bShutterEventLog)
-            dx->setChecked("enableEventLog",false);
 
         dx->setEnabled("pushButton",true);
     }
@@ -179,7 +182,6 @@ int X2Dome::execModalSettingsDialog()
         dx->setPropertyString("shutterBatteryLevel","text", szTmpBuf);
         dx->setEnabled("pushButton",false);
         dx->setEnabled("pushButton_2",false);
-        dx->setEnabled("enableEventLog",false);
     }
     dx->setPropertyDouble("homePosition","value", m_RigelDome.getHomeAz());
     dx->setPropertyDouble("parkPosition","value", m_RigelDome.getParkAz());

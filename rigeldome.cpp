@@ -426,6 +426,18 @@ bool CRigelDome::hasShutterUnit() {
 void CRigelDome::setDebugLog(bool bEnable)
 {
     m_bDebugLog = bEnable;
+
+    if(m_pLogger) {
+        char szEventLogMsg[256];
+        ltime = time(NULL);
+        timestamp = asctime(localtime(&ltime));
+        timestamp[strlen(timestamp) - 1] = 0;
+		if(m_bDebugLog)
+			sprintf(szEventLogMsg, "[%s] Shuttem event logging enabled", timestamp);
+		else
+			sprintf(szEventLogMsg, "[%s] Shuttem event logging disabled", timestamp);
+        m_pLogger->out(szEventLogMsg);
+    }
 }
 
 int CRigelDome::isDomeMoving(bool &bIsMoving)
