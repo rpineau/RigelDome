@@ -19,12 +19,16 @@
 #include "../../licensedinterfaces/serxinterface.h"
 #include "../../licensedinterfaces/loggerinterface.h"
 
-#define DRIVER_VERSION      1.2
+#include "StopWatch.h"
+
+#define DRIVER_VERSION      1.21
 // #define RIGEL_DEBUG 2
 
 #define SERIAL_BUFFER_SIZE 20
 #define MAX_TIMEOUT 5000
 #define ND_LOG_BUFFER_SIZE 256
+
+#define SHUTTER_CHECK_WAIT	3
 
 // error codes
 // Error code
@@ -132,12 +136,14 @@ protected:
     
     char            m_szFirmwareVersion[SERIAL_BUFFER_SIZE];
     int             m_nShutterState;
+    int             m_nPreviousShutterState;
     bool            m_bHasShutter;
     bool            m_bShutterOpened;
 
     char            m_szLogBuffer[ND_LOG_BUFFER_SIZE];
     int             m_nMotorState;
 
+	CStopWatch		m_cmdDelayCheckTimer;
     // timestamp for logs
     char *timestamp;
     time_t ltime;

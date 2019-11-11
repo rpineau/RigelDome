@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		93428B0D2377495D0058DB5E /* StopWatch.h in Headers */ = {isa = PBXBuildFile; fileRef = 93428B0C2377495D0058DB5E /* StopWatch.h */; };
 		938EAFDA1D0C84F700ED2086 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 938EAFD61D0C84F700ED2086 /* main.cpp */; };
 		938EAFDB1D0C84F700ED2086 /* main.h in Headers */ = {isa = PBXBuildFile; fileRef = 938EAFD71D0C84F700ED2086 /* main.h */; };
 		938EAFDC1D0C84F700ED2086 /* x2dome.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 938EAFD81D0C84F700ED2086 /* x2dome.cpp */; };
@@ -18,6 +19,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		93428B0C2377495D0058DB5E /* StopWatch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StopWatch.h; sourceTree = "<group>"; };
 		938EAFCD1D0C83E900ED2086 /* libRigelDome.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libRigelDome.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		938EAFD61D0C84F700ED2086 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		938EAFD71D0C84F700ED2086 /* main.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = main.h; sourceTree = "<group>"; };
@@ -71,6 +73,7 @@
 		938EAFD51D0C84E900ED2086 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				93428B0C2377495D0058DB5E /* StopWatch.h */,
 				938EAFDE1D0C858700ED2086 /* rigeldome.cpp */,
 				938EAFDF1D0C858700ED2086 /* rigeldome.h */,
 				938EAFD61D0C84F700ED2086 /* main.cpp */,
@@ -90,6 +93,7 @@
 			files = (
 				938EAFE11D0C858700ED2086 /* rigeldome.h in Headers */,
 				938EAFDB1D0C84F700ED2086 /* main.h in Headers */,
+				93428B0D2377495D0058DB5E /* StopWatch.h in Headers */,
 				938EAFDD1D0C84F700ED2086 /* x2dome.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -120,7 +124,7 @@
 		938EAFC51D0C83E900ED2086 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0940;
+				LastUpgradeCheck = 1120;
 				ORGANIZATIONNAME = "RTI-Zone";
 				TargetAttributes = {
 					938EAFCC1D0C83E900ED2086 = {
@@ -131,11 +135,11 @@
 			};
 			buildConfigurationList = 938EAFC81D0C83E900ED2086 /* Build configuration list for PBXProject "RigelDome" */;
 			compatibilityVersion = "Xcode 3.2";
-			developmentRegion = English;
+			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
-				English,
 				en,
+				Base,
 			);
 			mainGroup = 938EAFC41D0C83E900ED2086;
 			productRefGroup = 938EAFCE1D0C83E900ED2086 /* Products */;
@@ -165,7 +169,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD)";
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "compiler-default";
@@ -212,7 +216,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				MTL_ENABLE_DEBUG_INFO = YES;
-				ONLY_ACTIVE_ARCH = NO;
+				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
 				VALID_ARCHS = x86_64;
 			};
@@ -222,7 +226,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD)";
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "compiler-default";
@@ -263,7 +267,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				MTL_ENABLE_DEBUG_INFO = NO;
-				ONLY_ACTIVE_ARCH = NO;
+				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
 				VALID_ARCHS = x86_64;
 			};
@@ -272,7 +276,6 @@
 		938EAFD21D0C83E900ED2086 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD)";
 				CLANG_CXX_LIBRARY = "compiler-default";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				DEVELOPMENT_TEAM = PB97QXVYQC;
@@ -285,7 +288,7 @@
 					"\"$(SRCROOT)/../..\"",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
-				ONLY_ACTIVE_ARCH = NO;
+				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				VALID_ARCHS = x86_64;
 			};
@@ -294,7 +297,6 @@
 		938EAFD31D0C83E900ED2086 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD)";
 				CLANG_CXX_LIBRARY = "compiler-default";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				DEVELOPMENT_TEAM = PB97QXVYQC;
@@ -307,6 +309,7 @@
 					"\"$(SRCROOT)/../..\"",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				VALID_ARCHS = x86_64;
 			};

@@ -42,6 +42,8 @@ CRigelDome::CRigelDome()
     memset(m_szFirmwareVersion,0,SERIAL_BUFFER_SIZE);
     memset(m_szLogBuffer,0,ND_LOG_BUFFER_SIZE);
 
+	m_cmdDelayCheckTimer.Reset();
+
 #ifdef RIGEL_DEBUG
 #if defined(SB_WIN_BUILD)
     m_sLogfilePath = getenv("HOMEDRIVE");
@@ -61,7 +63,8 @@ CRigelDome::CRigelDome()
     ltime = time(NULL);
     timestamp = asctime(localtime(&ltime));
     timestamp[strlen(timestamp) - 1] = 0;
-    fprintf(Logfile, "[%s] CRigelDome Constructor Called\n", timestamp);
+	fprintf(Logfile, "[%s] [CRigelDome::CRigelDome] Version %3.2f build 2019_11_9_1140,.\n", timestamp, DRIVER_VERSION);
+    fprintf(Logfile, "[%s] [CRigelDome Constructor] Called\n", timestamp);
     fflush(Logfile);
 #endif
 
@@ -250,6 +253,41 @@ int CRigelDome::getDomeAz(double &dDomeAz)
     dDomeAz = atof(szResp);
     m_dCurrentAzPosition = dDomeAz;
 
+	// Check Shutter state from time to time and if it changed, log the change.
+	if(m_cmdDelayCheckTimer.GetElapsedSeconds()<SHUTTER_CHECK_WAIT) {
+		m_cmdDelayCheckTimer.Reset();
+		nErr = getShutterState(m_nShutterState);
+		if(nErr)
+			return nErr;
+		if(m_nPreviousShutterState != m_nShutterState) {
+			m_nPreviousShutterState = m_nShutterState;
+			switch(m_nShutterState) {
+				case OPEN :
+					if(m_bDebugLog && m_pLogger) {
+						char szEventLogMsg[256];
+						ltime = time(NULL);
+						timestamp = asctime(localtime(&ltime));
+						timestamp[strlen(timestamp) - 1] = 0;
+						sprintf(szEventLogMsg, "[%s] Shutter Opened", timestamp);
+						m_pLogger->out(szEventLogMsg);
+					}
+					break;
+				case CLOSED :
+					if(m_bDebugLog && m_pLogger) {
+						char szEventLogMsg[256];
+						ltime = time(NULL);
+						timestamp = asctime(localtime(&ltime));
+						timestamp[strlen(timestamp) - 1] = 0;
+						sprintf(szEventLogMsg, "[%s] Shutter Closed", timestamp);
+						m_pLogger->out(szEventLogMsg);
+					}
+					break;
+				default:
+					break;
+			}
+		}
+	}
+
     return nErr;
 }
 
@@ -324,8 +362,7 @@ int CRigelDome::getShutterState(int &nState)
 {
     int nErr = RD_OK;
     char szResp[SERIAL_BUFFER_SIZE];
-    int nShutterState;
-    bool bShutterConnected;
+	bool bShutterConnected;
 
     if(!m_bIsConnected)
         return NOT_CONNECTED;
@@ -344,10 +381,10 @@ int CRigelDome::getShutterState(int &nState)
     if(nErr)
         return nErr;
 
-	nShutterState = atoi(szResp);
+	nState = atoi(szResp);
     m_bHasShutter = true;
 
-    switch(nShutterState) {
+    switch(nState) {
         case OPEN:
             m_bShutterOpened = true;
             break;
@@ -370,8 +407,6 @@ int CRigelDome::getShutterState(int &nState)
             m_bShutterOpened = false;
             
     }
-
-    nState = atoi(szResp);
 
     return nErr;
 }
@@ -1149,6 +1184,7 @@ int CRigelDome::getExtendedState()
     if(vFields.size()>=13) {
         m_dCurrentAzPosition = atof(vFields[0].c_str());
         m_nMotorState = atoi(vFields[1].c_str());
+		m_nPreviousShutterState = m_nShutterState;
         m_nShutterState = atoi(vFields[5].c_str());
         switch(m_nShutterState) {
             case OPEN:
