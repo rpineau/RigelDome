@@ -63,7 +63,7 @@ CRigelDome::CRigelDome()
     ltime = time(NULL);
     timestamp = asctime(localtime(&ltime));
     timestamp[strlen(timestamp) - 1] = 0;
-	fprintf(Logfile, "[%s] [CRigelDome::CRigelDome] Version %3.2f build 2019_11_9_1140,.\n", timestamp, DRIVER_VERSION);
+	fprintf(Logfile, "[%s] [CRigelDome::CRigelDome] Version %3.2f build 2019_11_22_1930,.\n", timestamp, DRIVER_VERSION);
     fprintf(Logfile, "[%s] [CRigelDome Constructor] Called\n", timestamp);
     fflush(Logfile);
 #endif
@@ -254,7 +254,7 @@ int CRigelDome::getDomeAz(double &dDomeAz)
     m_dCurrentAzPosition = dDomeAz;
 
 	// Check Shutter state from time to time and if it changed, log the change.
-	if(m_cmdDelayCheckTimer.GetElapsedSeconds()<SHUTTER_CHECK_WAIT) {
+	if(m_cmdDelayCheckTimer.GetElapsedSeconds()>SHUTTER_CHECK_WAIT) {
 		m_cmdDelayCheckTimer.Reset();
 		nErr = getShutterState(m_nShutterState);
 		if(nErr)

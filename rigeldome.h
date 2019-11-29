@@ -21,7 +21,7 @@
 
 #include "StopWatch.h"
 
-#define DRIVER_VERSION      1.21
+#define DRIVER_VERSION      1.22
 // #define RIGEL_DEBUG 2
 
 #define SERIAL_BUFFER_SIZE 20
