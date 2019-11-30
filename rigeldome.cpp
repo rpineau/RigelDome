@@ -869,25 +869,27 @@ int CRigelDome::isGoToComplete(bool &bComplete)
 int CRigelDome::isOpenComplete(bool &bComplete)
 {
     int nErr = 0;
-    int nState;
 
     if(!m_bIsConnected)
         return NOT_CONNECTED;
 
-    nErr = getShutterState(nState);
+    nErr = getShutterState(m_nShutterState);
     if(nErr)
         return ERR_CMDFAILED;
-    if(nState == OPEN){
+    if(m_nShutterState == OPEN){
         m_bShutterOpened = true;
         bComplete = true;
         m_dCurrentElPosition = 90.0;
         if(m_bDebugLog && m_pLogger) {
-            char szEventLogMsg[256];
-            ltime = time(NULL);
-            timestamp = asctime(localtime(&ltime));
-            timestamp[strlen(timestamp) - 1] = 0;
-            sprintf(szEventLogMsg, "[%s] Shutter Openned", timestamp);
-            m_pLogger->out(szEventLogMsg);
+			if(m_nPreviousShutterState != m_nShutterState) {
+				m_nPreviousShutterState = m_nShutterState;
+				char szEventLogMsg[256];
+				ltime = time(NULL);
+				timestamp = asctime(localtime(&ltime));
+				timestamp[strlen(timestamp) - 1] = 0;
+				sprintf(szEventLogMsg, "[%s] Shutter Opened", timestamp);
+				m_pLogger->out(szEventLogMsg);
+			}
         }
     }
     else {
@@ -902,25 +904,27 @@ int CRigelDome::isOpenComplete(bool &bComplete)
 int CRigelDome::isCloseComplete(bool &bComplete)
 {
     int err=0;
-    int nState;
 
-    if(!m_bIsConnected)
+	if(!m_bIsConnected)
         return NOT_CONNECTED;
 
-    err = getShutterState(nState);
+    err = getShutterState(m_nShutterState);
     if(err)
         return ERR_CMDFAILED;
-    if(nState == CLOSED){
+    if(m_nShutterState == CLOSED){
         m_bShutterOpened = false;
         bComplete = true;
         m_dCurrentElPosition = 0.0;
         if(m_bDebugLog && m_pLogger) {
-            char szEventLogMsg[256];
-            ltime = time(NULL);
-            timestamp = asctime(localtime(&ltime));
-            timestamp[strlen(timestamp) - 1] = 0;
-            sprintf(szEventLogMsg, "[%s] Shutter Closed", timestamp);
-            m_pLogger->out(szEventLogMsg);
+			if(m_nPreviousShutterState != m_nShutterState) {
+				m_nPreviousShutterState = m_nShutterState;
+				char szEventLogMsg[256];
+				ltime = time(NULL);
+				timestamp = asctime(localtime(&ltime));
+				timestamp[strlen(timestamp) - 1] = 0;
+				sprintf(szEventLogMsg, "[%s] Shutter Closed", timestamp);
+				m_pLogger->out(szEventLogMsg);
+			}
         }
     }
     else {

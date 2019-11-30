@@ -4,6 +4,9 @@
 	#define PlugInExport
 #endif
 
+#define PLUGIN_NAME "X2Dome RigelDome"
+
+
 class SerXInterface;
 class TheSkyXFacadeForDriversInterface;
 class SleeperInterface;
