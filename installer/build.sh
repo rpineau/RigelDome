@@ -1,7 +1,7 @@
 #!/bin/bash
 
 PACKAGE_NAME="RigelDome_X2.pkg"
-BUNDLE_NAME="org.rti-zone.RigelDomeX2 "
+BUNDLE_NAME="org.rti-zone.RigelDomeX2"
 
 if [ ! -z "$app_id_signature" ]; then
     codesign -f -s "$app_id_signature" --verbose ../build/Release/libRigelDome.dylib
