@@ -14,17 +14,12 @@ class MutexInterface;
 class BasicIniUtilInterface;
 class TickCountInterface;
 
-#define DRIVER_VERSION      1.1
 
 #define PARENT_KEY			"RigelDome"
 #define CHILD_KEY_PORTNAME	"PortName"
-#define CHILD_KEY_TICKS_PER_REV "NbTicksPerRev"
 #define CHILD_KEY_HOME_AZ "HomeAzimuth"
 #define CHILD_KEY_PARK_AZ "ParkAzimuth"
-#define CHILD_KEY_SHUTTER_CONTROL "ShutterCtrl"
-#define CHILD_KEY_SHUTTER_OPEN_UPPER_ONLY "ShutterOpenUpperOnly"
-#define CHILD_KEY_ROOL_OFF_ROOF "RollOffRoof"
-#define CHILD_KEY_SHUTTER_OPER_ANY_Az "ShutterOperAnyAz"
+#define CHILD_KEY_LOG_EVENT "LogEvents"
 
 #if defined(SB_WIN_BUILD)
 #define DEF_PORT_NAME					"COM1"
@@ -118,7 +113,7 @@ public:
     virtual bool			isBaudRateFixed() const		{return true;}
 
     virtual SerXInterface::Parity	parity() const				{return SerXInterface::B_NOPARITY;}
-    virtual void					setParity(const SerXInterface::Parity& parity){parity;};
+    virtual void					setParity(const SerXInterface::Parity& parity){};
     virtual bool					isParityFixed() const		{return true;}
 
 
@@ -153,4 +148,6 @@ private:
     bool        m_bOpenUpperShutterOnly;
     bool        m_bCalibratingDome;
     int         m_bBattRequest;
+    bool        m_bShutterEventLog;
+    
 };

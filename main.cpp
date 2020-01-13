@@ -4,7 +4,6 @@
 #include "x2dome.h"
 
 
-#define PLUGIN_NAME "X2Dome RigelDome" 
 
 extern "C" PlugInExport int sbPlugInName2(BasicStringInterface& str)
 {

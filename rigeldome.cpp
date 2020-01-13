@@ -18,6 +18,7 @@ CRigelDome::CRigelDome()
 {
     // set some sane values
     m_bDebugLog = true;
+    m_pLogger = NULL;
     
     m_pSerx = NULL;
     m_bIsConnected = false;
@@ -41,6 +42,8 @@ CRigelDome::CRigelDome()
     memset(m_szFirmwareVersion,0,SERIAL_BUFFER_SIZE);
     memset(m_szLogBuffer,0,ND_LOG_BUFFER_SIZE);
 
+	m_cmdDelayCheckTimer.Reset();
+
 #ifdef RIGEL_DEBUG
 #if defined(SB_WIN_BUILD)
     m_sLogfilePath = getenv("HOMEDRIVE");
@@ -60,7 +63,8 @@ CRigelDome::CRigelDome()
     ltime = time(NULL);
     timestamp = asctime(localtime(&ltime));
     timestamp[strlen(timestamp) - 1] = 0;
-    fprintf(Logfile, "[%s] CRigelDome Constructor Called\n", timestamp);
+	fprintf(Logfile, "[%s] [CRigelDome::CRigelDome] Version %3.2f build 2019_11_22_1930,.\n", timestamp, DRIVER_VERSION);
+    fprintf(Logfile, "[%s] [CRigelDome Constructor] Called\n", timestamp);
     fflush(Logfile);
 #endif
 
@@ -249,6 +253,41 @@ int CRigelDome::getDomeAz(double &dDomeAz)
     dDomeAz = atof(szResp);
     m_dCurrentAzPosition = dDomeAz;
 
+	// Check Shutter state from time to time and if it changed, log the change.
+	if(m_cmdDelayCheckTimer.GetElapsedSeconds()>SHUTTER_CHECK_WAIT) {
+		m_cmdDelayCheckTimer.Reset();
+		nErr = getShutterState(m_nShutterState);
+		if(nErr)
+			return nErr;
+		if(m_nPreviousShutterState != m_nShutterState) {
+			m_nPreviousShutterState = m_nShutterState;
+			switch(m_nShutterState) {
+				case OPEN :
+					if(m_bDebugLog && m_pLogger) {
+						char szEventLogMsg[256];
+						ltime = time(NULL);
+						timestamp = asctime(localtime(&ltime));
+						timestamp[strlen(timestamp) - 1] = 0;
+						sprintf(szEventLogMsg, "[%s] Shutter Opened", timestamp);
+						m_pLogger->out(szEventLogMsg);
+					}
+					break;
+				case CLOSED :
+					if(m_bDebugLog && m_pLogger) {
+						char szEventLogMsg[256];
+						ltime = time(NULL);
+						timestamp = asctime(localtime(&ltime));
+						timestamp[strlen(timestamp) - 1] = 0;
+						sprintf(szEventLogMsg, "[%s] Shutter Closed", timestamp);
+						m_pLogger->out(szEventLogMsg);
+					}
+					break;
+				default:
+					break;
+			}
+		}
+	}
+
     return nErr;
 }
 
@@ -323,8 +362,7 @@ int CRigelDome::getShutterState(int &nState)
 {
     int nErr = RD_OK;
     char szResp[SERIAL_BUFFER_SIZE];
-    int nShutterState;
-    bool bShutterConnected;
+	bool bShutterConnected;
 
     if(!m_bIsConnected)
         return NOT_CONNECTED;
@@ -343,10 +381,10 @@ int CRigelDome::getShutterState(int &nState)
     if(nErr)
         return nErr;
 
-	nShutterState = atoi(szResp);
+	nState = atoi(szResp);
     m_bHasShutter = true;
 
-    switch(nShutterState) {
+    switch(nState) {
         case OPEN:
             m_bShutterOpened = true;
             break;
@@ -369,8 +407,6 @@ int CRigelDome::getShutterState(int &nState)
             m_bShutterOpened = false;
             
     }
-
-    nState = atoi(szResp);
 
     return nErr;
 }
@@ -425,6 +461,18 @@ bool CRigelDome::hasShutterUnit() {
 void CRigelDome::setDebugLog(bool bEnable)
 {
     m_bDebugLog = bEnable;
+
+    if(m_pLogger) {
+        char szEventLogMsg[256];
+        ltime = time(NULL);
+        timestamp = asctime(localtime(&ltime));
+        timestamp[strlen(timestamp) - 1] = 0;
+		if(m_bDebugLog)
+			sprintf(szEventLogMsg, "[%s] Shuttem event logging enabled", timestamp);
+		else
+			sprintf(szEventLogMsg, "[%s] Shuttem event logging disabled", timestamp);
+        m_pLogger->out(szEventLogMsg);
+    }
 }
 
 int CRigelDome::isDomeMoving(bool &bIsMoving)
@@ -473,7 +521,6 @@ int CRigelDome::isDomeAtHome(bool &bAtHome)
 
 int CRigelDome::connectToShutter()
 {
-    int tmp;
     int nErr = RD_OK;
     char resp[SERIAL_BUFFER_SIZE];
 
@@ -507,7 +554,6 @@ int CRigelDome::isConnectedToShutter(bool &bConnected)
 
 int CRigelDome::btForce()
 {
-    int tmp;
     int nErr = RD_OK;
     char resp[SERIAL_BUFFER_SIZE];
 
@@ -611,6 +657,15 @@ int CRigelDome::openShutter()
     if(m_bCalibrating)
         return SB_OK;
 
+    if(m_bDebugLog && m_pLogger) {
+        char szEventLogMsg[256];
+        ltime = time(NULL);
+        timestamp = asctime(localtime(&ltime));
+        timestamp[strlen(timestamp) - 1] = 0;
+        sprintf(szEventLogMsg, "[%s] Opening Shutter", timestamp);
+        m_pLogger->out(szEventLogMsg);
+    }
+    
     nErr = domeCommand("OPEN\r", szResp, SERIAL_BUFFER_SIZE);
     if(nErr)
         return nErr;
@@ -634,6 +689,15 @@ int CRigelDome::closeShutter()
 
     if(m_bCalibrating)
         return SB_OK;
+
+    if(m_bDebugLog && m_pLogger) {
+        char szEventLogMsg[256];
+        ltime = time(NULL);
+        timestamp = asctime(localtime(&ltime));
+        timestamp[strlen(timestamp) - 1] = 0;
+        sprintf(szEventLogMsg, "[%s] Closing Shutter", timestamp);
+        m_pLogger->out(szEventLogMsg);
+    }
 
     nErr = domeCommand("CLOSE\r", szResp, SERIAL_BUFFER_SIZE);
     if(nErr)
@@ -805,18 +869,28 @@ int CRigelDome::isGoToComplete(bool &bComplete)
 int CRigelDome::isOpenComplete(bool &bComplete)
 {
     int nErr = 0;
-    int nState;
 
     if(!m_bIsConnected)
         return NOT_CONNECTED;
 
-    nErr = getShutterState(nState);
+    nErr = getShutterState(m_nShutterState);
     if(nErr)
         return ERR_CMDFAILED;
-    if(nState == OPEN){
+    if(m_nShutterState == OPEN){
         m_bShutterOpened = true;
         bComplete = true;
         m_dCurrentElPosition = 90.0;
+        if(m_bDebugLog && m_pLogger) {
+			if(m_nPreviousShutterState != m_nShutterState) {
+				m_nPreviousShutterState = m_nShutterState;
+				char szEventLogMsg[256];
+				ltime = time(NULL);
+				timestamp = asctime(localtime(&ltime));
+				timestamp[strlen(timestamp) - 1] = 0;
+				sprintf(szEventLogMsg, "[%s] Shutter Opened", timestamp);
+				m_pLogger->out(szEventLogMsg);
+			}
+        }
     }
     else {
         m_bShutterOpened = false;
@@ -830,18 +904,28 @@ int CRigelDome::isOpenComplete(bool &bComplete)
 int CRigelDome::isCloseComplete(bool &bComplete)
 {
     int err=0;
-    int nState;
 
-    if(!m_bIsConnected)
+	if(!m_bIsConnected)
         return NOT_CONNECTED;
 
-    err = getShutterState(nState);
+    err = getShutterState(m_nShutterState);
     if(err)
         return ERR_CMDFAILED;
-    if(nState == CLOSED){
+    if(m_nShutterState == CLOSED){
         m_bShutterOpened = false;
         bComplete = true;
         m_dCurrentElPosition = 0.0;
+        if(m_bDebugLog && m_pLogger) {
+			if(m_nPreviousShutterState != m_nShutterState) {
+				m_nPreviousShutterState = m_nShutterState;
+				char szEventLogMsg[256];
+				ltime = time(NULL);
+				timestamp = asctime(localtime(&ltime));
+				timestamp[strlen(timestamp) - 1] = 0;
+				sprintf(szEventLogMsg, "[%s] Shutter Closed", timestamp);
+				m_pLogger->out(szEventLogMsg);
+			}
+        }
     }
     else {
         m_bShutterOpened = true;
@@ -946,8 +1030,6 @@ int CRigelDome::isFindHomeComplete(bool &bComplete)
 int CRigelDome::isCalibratingComplete(bool &bComplete)
 {
     int nErr = 0;
-    double dDomeAz = 0;
-    bool bIsMoving = false;
 
     bComplete = false;
 
@@ -973,34 +1055,7 @@ int CRigelDome::isCalibratingComplete(bool &bComplete)
         return nErr;
     }
 
-    // old version of the test.
-
-    nErr = isDomeMoving(bIsMoving);
-    if(nErr)
-        return nErr;
-
-    if(bIsMoving) {
-        getDomeAz(dDomeAz);
-        m_bHomed = false;
-        bComplete = false;
-        return nErr;
-    }
-    
-    nErr = getDomeAz(dDomeAz);
-
-    if (ceil(m_dHomeAz) != ceil(dDomeAz)) {
-        // We need to resync the current position to the home position.
-        m_dCurrentAzPosition = m_dHomeAz;
-        syncDome(m_dCurrentAzPosition,m_dCurrentElPosition);
-        m_bHomed = true;
-        bComplete = true;
-    }
-
-    nErr = getDomeStepPerRev(m_nNbStepPerRev);
-    m_bHomed = true;
-    bComplete = true;
-    m_bCalibrating = false;
-    return nErr;
+     return nErr;
 }
 
 
@@ -1133,6 +1188,7 @@ int CRigelDome::getExtendedState()
     if(vFields.size()>=13) {
         m_dCurrentAzPosition = atof(vFields[0].c_str());
         m_nMotorState = atoi(vFields[1].c_str());
+		m_nPreviousShutterState = m_nShutterState;
         m_nShutterState = atoi(vFields[5].c_str());
         switch(m_nShutterState) {
             case OPEN:

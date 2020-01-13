@@ -19,11 +19,16 @@
 #include "../../licensedinterfaces/serxinterface.h"
 #include "../../licensedinterfaces/loggerinterface.h"
 
+#include "StopWatch.h"
+
+#define DRIVER_VERSION      1.22
 // #define RIGEL_DEBUG 2
 
 #define SERIAL_BUFFER_SIZE 20
 #define MAX_TIMEOUT 5000
 #define ND_LOG_BUFFER_SIZE 256
+
+#define SHUTTER_CHECK_WAIT	3
 
 // error codes
 // Error code
@@ -84,6 +89,7 @@ public:
     int getBatteryLevels(double &shutterVolts, int &percent);
 
     bool hasShutterUnit();
+    int  btForce();
 
     void setDebugLog(bool enable);
 
@@ -102,7 +108,6 @@ protected:
 
     int             connectToShutter();
     int             isConnectedToShutter(bool &bConnected);
-    int             btForce();
     int             domeCommand(const char *pszCmd, char *pszResult, int nResultMaxLen);
     int             getExtendedState();
     int             parseFields(const char *pszResp, std::vector<std::string> &svFields, char cSeparator);
@@ -131,17 +136,20 @@ protected:
     
     char            m_szFirmwareVersion[SERIAL_BUFFER_SIZE];
     int             m_nShutterState;
+    int             m_nPreviousShutterState;
     bool            m_bHasShutter;
     bool            m_bShutterOpened;
 
     char            m_szLogBuffer[ND_LOG_BUFFER_SIZE];
     int             m_nMotorState;
 
-#ifdef RIGEL_DEBUG
-    std::string m_sLogfilePath;
+	CStopWatch		m_cmdDelayCheckTimer;
     // timestamp for logs
     char *timestamp;
     time_t ltime;
+
+#ifdef RIGEL_DEBUG
+    std::string m_sLogfilePath;
     FILE *Logfile;      // LogFile
 #endif
 
