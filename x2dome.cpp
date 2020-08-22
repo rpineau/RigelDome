@@ -166,7 +166,7 @@ int X2Dome::execModalSettingsDialog()
         dx->setPropertyString("ticksPerRev","text", szTmpBuf);
         if(m_bHasShutterControl) {
             m_RigelDome.getBatteryLevels(dShutterBattery, nShutterBatteryPercent);
-            snprintf(szTmpBuf,16,"%d%% ( %3.2f V )",nShutterBatteryPercent, dShutterBattery);
+            snprintf(szTmpBuf,16,"%2.1f%% ( %3.2f V )",float(nShutterBatteryPercent)/100.0, dShutterBattery);
             dx->setPropertyString("shutterBatteryLevel","text", szTmpBuf);
         }
         else {
@@ -377,12 +377,17 @@ int X2Dome::dapiGetAzEl(double* pdAz, double* pdEl)
 int X2Dome::dapiGotoAzEl(double dAz, double dEl)
 {
     int nErr;
-
+    
     X2MutexLocker ml(GetMutex());
 
     if(!m_bLinked)
         return ERR_NOLINK;
-
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 2
+    char szTmpBuf[256];
+    snprintf(szTmpBuf, 256, "[X2Dome::dapiGotoAzEl] goto %3.2f", dAz);
+    m_RigelDome.logString(szTmpBuf);
+#endif
+    
     nErr = m_RigelDome.gotoAzimuth(dAz);
     if(nErr)
         return ERR_CMDFAILED;
@@ -412,9 +417,15 @@ int X2Dome::dapiOpen(void)
     if(!m_bLinked)
         return ERR_NOLINK;
 
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 2
+    m_RigelDome.logString("[X2Dome::dapiOpen]");
+#endif
     if(!m_bHasShutterControl)
         return SB_OK;
 
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 2
+    m_RigelDome.logString("[X2Dome::dapiOpen] shutter is present .. opening");
+#endif
     nErr = m_RigelDome.openShutter();
     if(nErr)
         return ERR_CMDFAILED;
@@ -430,9 +441,16 @@ int X2Dome::dapiClose(void)
     if(!m_bLinked)
         return ERR_NOLINK;
 
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 2
+    m_RigelDome.logString("[X2Dome::dapiClose]");
+#endif
     if(!m_bHasShutterControl)
         return SB_OK;
 
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 2
+    m_RigelDome.logString("[X2Dome::dapiOpen] shutter is present .. closing");
+#endif
+    
     nErr = m_RigelDome.closeShutter();
     if(nErr)
         return ERR_CMDFAILED;
@@ -507,6 +525,9 @@ int X2Dome::dapiIsGotoComplete(bool* pbComplete)
     if(!m_bLinked)
         return ERR_NOLINK;
 
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 2
+    m_RigelDome.logString("[X2Dome::dapiIsGotoComplete]");
+#endif
     nErr = m_RigelDome.isGoToComplete(*pbComplete);
     if(nErr)
         return ERR_CMDFAILED;
@@ -521,8 +542,14 @@ int X2Dome::dapiIsOpenComplete(bool* pbComplete)
     if(!m_bLinked)
         return ERR_NOLINK;
     
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 2
+    m_RigelDome.logString("[X2Dome::dapiIsOpenComplete]");
+#endif
     if(!m_bHasShutterControl)
     {
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 2
+        m_RigelDome.logString("[X2Dome::dapiIsOpenComplete] shutter present");
+#endif
         *pbComplete = true;
         return SB_OK;
     }
@@ -542,8 +569,14 @@ int	X2Dome::dapiIsCloseComplete(bool* pbComplete)
     if(!m_bLinked)
         return ERR_NOLINK;
 
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 2
+    m_RigelDome.logString("[X2Dome::dapiIsCloseComplete]");
+#endif
     if(!m_bHasShutterControl)
     {
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 2
+        m_RigelDome.logString("[X2Dome::dapiIsCloseComplete] Shutter present");
+#endif
         *pbComplete = true;
         return SB_OK;
     }
