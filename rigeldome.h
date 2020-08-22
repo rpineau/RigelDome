@@ -22,7 +22,7 @@
 #include "StopWatch.h"
 
 #define DRIVER_VERSION      1.22
-// #define RIGEL_DEBUG 2
+// #define PLUGIN_DEBUG 2
 
 #define SERIAL_BUFFER_SIZE 20
 #define MAX_TIMEOUT 5000
@@ -92,7 +92,8 @@ public:
     int  btForce();
 
     void setDebugLog(bool enable);
-
+    void logString(const char *message);
+    
 protected:
     
     int             readResponse(char *pszRespBuffer, int bufferLen);
@@ -148,7 +149,7 @@ protected:
     char *timestamp;
     time_t ltime;
 
-#ifdef RIGEL_DEBUG
+#ifdef PLUGIN_DEBUG
     std::string m_sLogfilePath;
     FILE *Logfile;      // LogFile
 #endif

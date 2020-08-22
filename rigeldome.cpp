@@ -44,7 +44,7 @@ CRigelDome::CRigelDome()
 
 	m_cmdDelayCheckTimer.Reset();
 
-#ifdef RIGEL_DEBUG
+#ifdef PLUGIN_DEBUG
 #if defined(SB_WIN_BUILD)
     m_sLogfilePath = getenv("HOMEDRIVE");
     m_sLogfilePath += getenv("HOMEPATH");
@@ -59,11 +59,11 @@ CRigelDome::CRigelDome()
     Logfile = fopen(m_sLogfilePath.c_str(), "w");
 #endif
 
-#if defined RIGEL_DEBUG && RIGEL_DEBUG >= 2
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 2
     ltime = time(NULL);
     timestamp = asctime(localtime(&ltime));
     timestamp[strlen(timestamp) - 1] = 0;
-	fprintf(Logfile, "[%s] [CRigelDome::CRigelDome] Version %3.2f build 2019_11_22_1930,.\n", timestamp, DRIVER_VERSION);
+	fprintf(Logfile, "[%s] [CRigelDome::CRigelDome] Version %3.2f build 2020_08_13_1325,.\n", timestamp, DRIVER_VERSION);
     fprintf(Logfile, "[%s] [CRigelDome Constructor] Called\n", timestamp);
     fflush(Logfile);
 #endif
@@ -80,7 +80,7 @@ int CRigelDome::Connect(const char *pszPort)
     int nErr;
     int nState;
 
-#if defined RIGEL_DEBUG && RIGEL_DEBUG >= 2
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 2
     ltime = time(NULL);
     timestamp = asctime(localtime(&ltime));
     timestamp[strlen(timestamp) - 1] = 0;
@@ -97,7 +97,7 @@ int CRigelDome::Connect(const char *pszPort)
     if(!m_bIsConnected)
         return ERR_COMMNOLINK;
 
-#if defined RIGEL_DEBUG && RIGEL_DEBUG >= 2
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 2
     ltime = time(NULL);
     timestamp = asctime(localtime(&ltime));
     timestamp[strlen(timestamp) - 1] = 0;
@@ -109,7 +109,7 @@ int CRigelDome::Connect(const char *pszPort)
     // if this fails we're not properly connected.
     nErr = getFirmwareVersion(m_szFirmwareVersion, SERIAL_BUFFER_SIZE);
     if(nErr) {
-#if defined RIGEL_DEBUG && RIGEL_DEBUG >= 2
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 2
         ltime = time(NULL);
         timestamp = asctime(localtime(&ltime));
         timestamp[strlen(timestamp) - 1] = 0;
@@ -121,7 +121,7 @@ int CRigelDome::Connect(const char *pszPort)
         return ERR_CMDFAILED;
     }
 
-#if defined RIGEL_DEBUG && RIGEL_DEBUG >= 2
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 2
     ltime = time(NULL);
     timestamp = asctime(localtime(&ltime));
     timestamp[strlen(timestamp) - 1] = 0;
@@ -135,6 +135,9 @@ int CRigelDome::Connect(const char *pszPort)
     if(nState != NOT_FITTED && nState != UNKNOWN )
         m_bHasShutter = true;
 
+    getDomeAz(m_dCurrentAzPosition);
+    getDomeAz(m_dGotoAz);
+    
     return SB_OK;
 }
 
@@ -162,7 +165,7 @@ int CRigelDome::readResponse(char *pszRespBuffer, int nBufferLen)
     do {
         nErr = m_pSerx->readFile(pszBufPtr, 1, ulBytesRead, MAX_TIMEOUT);
         if(nErr) {
-#if defined RIGEL_DEBUG && RIGEL_DEBUG >= 2
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 3
             ltime = time(NULL);
             timestamp = asctime(localtime(&ltime));
             timestamp[strlen(timestamp) - 1] = 0;
@@ -173,7 +176,7 @@ int CRigelDome::readResponse(char *pszRespBuffer, int nBufferLen)
         }
 
         if (ulBytesRead !=1) {// timeout
-#if defined RIGEL_DEBUG && RIGEL_DEBUG >= 2
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 3
             ltime = time(NULL);
             timestamp = asctime(localtime(&ltime));
             timestamp[strlen(timestamp) - 1] = 0;
@@ -201,7 +204,7 @@ int CRigelDome::domeCommand(const char *pszCmd, char *pszResult, int nResultMaxL
 
     m_pSerx->purgeTxRx();
 
-#if defined RIGEL_DEBUG && RIGEL_DEBUG >= 2
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 3
     ltime = time(NULL);
     timestamp = asctime(localtime(&ltime));
     timestamp[strlen(timestamp) - 1] = 0;
@@ -216,7 +219,7 @@ int CRigelDome::domeCommand(const char *pszCmd, char *pszResult, int nResultMaxL
 
     // read response
     nErr = readResponse(szResp, SERIAL_BUFFER_SIZE);
-#if defined RIGEL_DEBUG && RIGEL_DEBUG >= 2
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 3
     ltime = time(NULL);
     timestamp = asctime(localtime(&ltime));
     timestamp[strlen(timestamp) - 1] = 0;
@@ -263,22 +266,36 @@ int CRigelDome::getDomeAz(double &dDomeAz)
 			m_nPreviousShutterState = m_nShutterState;
 			switch(m_nShutterState) {
 				case OPEN :
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 2
+                    ltime = time(NULL);
+                    timestamp = asctime(localtime(&ltime));
+                    timestamp[strlen(timestamp) - 1] = 0;
+                    fprintf(Logfile, "[%s] [CRigelDome::getDomeAz] Shutter Opened\n", timestamp);
+                    fflush(Logfile);
+#endif
 					if(m_bDebugLog && m_pLogger) {
 						char szEventLogMsg[256];
 						ltime = time(NULL);
 						timestamp = asctime(localtime(&ltime));
 						timestamp[strlen(timestamp) - 1] = 0;
-						sprintf(szEventLogMsg, "[%s] Shutter Opened", timestamp);
+						snprintf(szEventLogMsg, 256, "[%s] [CRigelDome::getDomeAz] Shutter Opened", timestamp);
 						m_pLogger->out(szEventLogMsg);
 					}
 					break;
 				case CLOSED :
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 2
+                    ltime = time(NULL);
+                    timestamp = asctime(localtime(&ltime));
+                    timestamp[strlen(timestamp) - 1] = 0;
+                    fprintf(Logfile, "[%s] [CRigelDome::getDomeAz] Shutter Closed\n", timestamp);
+                    fflush(Logfile);
+#endif
 					if(m_bDebugLog && m_pLogger) {
 						char szEventLogMsg[256];
 						ltime = time(NULL);
 						timestamp = asctime(localtime(&ltime));
 						timestamp[strlen(timestamp) - 1] = 0;
-						sprintf(szEventLogMsg, "[%s] Shutter Closed", timestamp);
+						snprintf(szEventLogMsg, 256, "[%s] [CRigelDome::getDomeAz] Shutter Closed", timestamp);
 						m_pLogger->out(szEventLogMsg);
 					}
 					break;
@@ -333,6 +350,15 @@ int CRigelDome::getDomeHomeAz(double &dAz)
     // convert Az string to double
     dAz = atof(szResp);
     m_dHomeAz = dAz;
+
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 2
+    ltime = time(NULL);
+    timestamp = asctime(localtime(&ltime));
+    timestamp[strlen(timestamp) - 1] = 0;
+    fprintf(Logfile, "[%s] [CRigelDome::getDomeHomeAz] Home Az = %3.1f\n", timestamp,m_dHomeAz);
+    fflush(Logfile);
+#endif
+
     return nErr;
 }
 
@@ -354,6 +380,13 @@ int CRigelDome::getDomeParkAz(double &dAz)
     // convert Az string to double
     dAz = atof(szResp);
     m_dParkAz = dAz;
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 2
+    ltime = time(NULL);
+    timestamp = asctime(localtime(&ltime));
+    timestamp[strlen(timestamp) - 1] = 0;
+    fprintf(Logfile, "[%s] [CRigelDome::getDomeParkAz] Park Az = %3.1f\n", timestamp,m_dHomeAz);
+    fflush(Logfile);
+#endif
     return nErr;
 }
 
@@ -386,15 +419,45 @@ int CRigelDome::getShutterState(int &nState)
 
     switch(nState) {
         case OPEN:
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 2
+            ltime = time(NULL);
+            timestamp = asctime(localtime(&ltime));
+            timestamp[strlen(timestamp) - 1] = 0;
+            fprintf(Logfile, "[%s] [CRigelDome::getShutterState] Shutter is open, state = %d\n", timestamp, nState);
+            fflush(Logfile);
+#endif
             m_bShutterOpened = true;
             break;
 
         case CLOSED:
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 2
+            ltime = time(NULL);
+            timestamp = asctime(localtime(&ltime));
+            timestamp[strlen(timestamp) - 1] = 0;
+            fprintf(Logfile, "[%s] [CRigelDome::getShutterState] Shutter is closed, state = %d\n", timestamp, nState);
+            fflush(Logfile);
+#endif
             m_bShutterOpened = false;
             break;
 
         case OPENING:
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 2
+            ltime = time(NULL);
+            timestamp = asctime(localtime(&ltime));
+            timestamp[strlen(timestamp) - 1] = 0;
+            fprintf(Logfile, "[%s] [CRigelDome::getShutterState] Shutter is opening, state = %d\n", timestamp, nState);
+            fflush(Logfile);
+#endif
+            break;
+
         case CLOSING:
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 2
+            ltime = time(NULL);
+            timestamp = asctime(localtime(&ltime));
+            timestamp[strlen(timestamp) - 1] = 0;
+            fprintf(Logfile, "[%s] [CRigelDome::getShutterState] Shutter is closing, state = %d\n", timestamp, nState);
+            fflush(Logfile);
+#endif
             break;
 
         //case NOT_FITTED:
@@ -405,7 +468,6 @@ int CRigelDome::getShutterState(int &nState)
         //    break;
         default:
             m_bShutterOpened = false;
-            
     }
 
     return nErr;
@@ -468,12 +530,34 @@ void CRigelDome::setDebugLog(bool bEnable)
         timestamp = asctime(localtime(&ltime));
         timestamp[strlen(timestamp) - 1] = 0;
 		if(m_bDebugLog)
-			sprintf(szEventLogMsg, "[%s] Shuttem event logging enabled", timestamp);
+			snprintf(szEventLogMsg, 256, "[%s] Shuttem event logging enabled", timestamp);
 		else
-			sprintf(szEventLogMsg, "[%s] Shuttem event logging disabled", timestamp);
+			snprintf(szEventLogMsg, 256, "[%s] Shuttem event logging disabled", timestamp);
         m_pLogger->out(szEventLogMsg);
     }
 }
+
+void CRigelDome::logString(const char *message)
+{
+    #if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 2
+        ltime = time(NULL);
+        timestamp = asctime(localtime(&ltime));
+        timestamp[strlen(timestamp) - 1] = 0;
+        fprintf(Logfile, "[%s] [CRigelDome::logString]  %s\n", timestamp, message);
+        fflush(Logfile);
+    #endif
+
+    if(m_bDebugLog && m_pLogger) {
+        char szEventLogMsg[256];
+        ltime = time(NULL);
+        timestamp = asctime(localtime(&ltime));
+        timestamp[strlen(timestamp) - 1] = 0;
+        snprintf(szEventLogMsg, 256, "[%s] %s", timestamp, message);
+        m_pLogger->out(szEventLogMsg);
+    }
+
+}
+
 
 int CRigelDome::isDomeMoving(bool &bIsMoving)
 {
@@ -492,6 +576,14 @@ int CRigelDome::isDomeMoving(bool &bIsMoving)
     tmp = atoi(szResp);
     if(tmp != 0 && tmp != 3)
         bIsMoving = true;
+
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 2
+    ltime = time(NULL);
+    timestamp = asctime(localtime(&ltime));
+    timestamp[strlen(timestamp) - 1] = 0;
+    fprintf(Logfile, "[%s] [CRigelDome::isDomeMoving] Dome moving = %s\n", timestamp, bIsMoving?"Yes":"No");
+    fflush(Logfile);
+#endif
 
     return nErr;
 }
@@ -514,7 +606,15 @@ int CRigelDome::isDomeAtHome(bool &bAtHome)
     tmp = atoi(resp);
     if(tmp)
         bAtHome = true;
-    
+
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 2
+    ltime = time(NULL);
+    timestamp = asctime(localtime(&ltime));
+    timestamp[strlen(timestamp) - 1] = 0;
+    fprintf(Logfile, "[%s] [CRigelDome::isDomeAtHome] Is dome at home = %s\n", timestamp, bAtHome?"Yes":"No");
+    fflush(Logfile);
+#endif
+
     return nErr;
   
 }
@@ -629,6 +729,14 @@ int CRigelDome::gotoAzimuth(double dNewAz)
     if(!m_bIsConnected)
         return NOT_CONNECTED;
 
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 2
+    ltime = time(NULL);
+    timestamp = asctime(localtime(&ltime));
+    timestamp[strlen(timestamp) - 1] = 0;
+    fprintf(Logfile, "[%s] [CRigelDome::gotoAzimuth] GoTo %3.1f\n", timestamp, dNewAz);
+    fflush(Logfile);
+#endif
+
     snprintf(szBuf, SERIAL_BUFFER_SIZE, "GO %3.1f\r", dNewAz);
     nErr = domeCommand(szBuf, szResp, SERIAL_BUFFER_SIZE);
     if(nErr)
@@ -657,12 +765,20 @@ int CRigelDome::openShutter()
     if(m_bCalibrating)
         return SB_OK;
 
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 2
+    ltime = time(NULL);
+    timestamp = asctime(localtime(&ltime));
+    timestamp[strlen(timestamp) - 1] = 0;
+    fprintf(Logfile, "[%s] [CRigelDome::openShutter] Opening Shutter\n", timestamp);
+    fflush(Logfile);
+#endif
+
     if(m_bDebugLog && m_pLogger) {
         char szEventLogMsg[256];
         ltime = time(NULL);
         timestamp = asctime(localtime(&ltime));
         timestamp[strlen(timestamp) - 1] = 0;
-        sprintf(szEventLogMsg, "[%s] Opening Shutter", timestamp);
+        snprintf(szEventLogMsg, 256, "[%s] Opening Shutter", timestamp);
         m_pLogger->out(szEventLogMsg);
     }
     
@@ -690,12 +806,20 @@ int CRigelDome::closeShutter()
     if(m_bCalibrating)
         return SB_OK;
 
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 2
+    ltime = time(NULL);
+    timestamp = asctime(localtime(&ltime));
+    timestamp[strlen(timestamp) - 1] = 0;
+    fprintf(Logfile, "[%s] [CRigelDome::closeShutter] Closing Shutter\n", timestamp);
+    fflush(Logfile);
+#endif
+
     if(m_bDebugLog && m_pLogger) {
         char szEventLogMsg[256];
         ltime = time(NULL);
         timestamp = asctime(localtime(&ltime));
         timestamp[strlen(timestamp) - 1] = 0;
-        sprintf(szEventLogMsg, "[%s] Closing Shutter", timestamp);
+        snprintf(szEventLogMsg, 256, "[%s] Closing Shutter", timestamp);
         m_pLogger->out(szEventLogMsg);
     }
 
@@ -763,6 +887,15 @@ int CRigelDome::goHome()
     if(m_bCalibrating)
         return SB_OK;
 
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 2
+    ltime = time(NULL);
+    timestamp = asctime(localtime(&ltime));
+    timestamp[strlen(timestamp) - 1] = 0;
+    fprintf(Logfile, "[%s] [CRigelDome::goHome] Go Home\n", timestamp);
+    fflush(Logfile);
+#endif
+
+    
     nErr = domeCommand("GO H\r", szResp, SERIAL_BUFFER_SIZE);
     if(nErr)
         return nErr;
@@ -801,6 +934,14 @@ int CRigelDome::calibrate()
 
     m_bCalibrating = true;
     
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 2
+    ltime = time(NULL);
+    timestamp = asctime(localtime(&ltime));
+    timestamp[strlen(timestamp) - 1] = 0;
+    fprintf(Logfile, "[%s] [CRigelDome::calibrate] Calibrating\n", timestamp);
+    fflush(Logfile);
+#endif
+
     return nErr;
 }
 
@@ -821,7 +962,7 @@ int CRigelDome::isGoToComplete(bool &bComplete)
     getDomeAz(dDomeAz);
 
     if(bIsMoving) {
-#if defined RIGEL_DEBUG && RIGEL_DEBUG >= 2
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 2
         ltime = time(NULL);
         timestamp = asctime(localtime(&ltime));
         timestamp[strlen(timestamp) - 1] = 0;
@@ -832,7 +973,7 @@ int CRigelDome::isGoToComplete(bool &bComplete)
         return nErr;
     }
 
-#if defined RIGEL_DEBUG && RIGEL_DEBUG >= 2
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 2
     ltime = time(NULL);
     timestamp = asctime(localtime(&ltime));
     timestamp[strlen(timestamp) - 1] = 0;
@@ -841,7 +982,7 @@ int CRigelDome::isGoToComplete(bool &bComplete)
 #endif
 
     if ((floor(m_dGotoAz) <= floor(dDomeAz)+1) && (floor(m_dGotoAz) >= floor(dDomeAz)-1)) {
-#if defined RIGEL_DEBUG && RIGEL_DEBUG >= 2
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 2
         ltime = time(NULL);
         timestamp = asctime(localtime(&ltime));
         timestamp[strlen(timestamp) - 1] = 0;
@@ -852,7 +993,7 @@ int CRigelDome::isGoToComplete(bool &bComplete)
     }
     else {
         // we're not moving and we're not at the final destination !!!
-#if defined RIGEL_DEBUG && RIGEL_DEBUG >= 2
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 2
         ltime = time(NULL);
         timestamp = asctime(localtime(&ltime));
         timestamp[strlen(timestamp) - 1] = 0;
@@ -876,10 +1017,19 @@ int CRigelDome::isOpenComplete(bool &bComplete)
     nErr = getShutterState(m_nShutterState);
     if(nErr)
         return ERR_CMDFAILED;
+
     if(m_nShutterState == OPEN){
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 2
+        ltime = time(NULL);
+        timestamp = asctime(localtime(&ltime));
+        timestamp[strlen(timestamp) - 1] = 0;
+        fprintf(Logfile, "[%s] [CRigelDome::isOpenComplete] Shutter Opened\n", timestamp);
+        fflush(Logfile);
+#endif
         m_bShutterOpened = true;
         bComplete = true;
         m_dCurrentElPosition = 90.0;
+
         if(m_bDebugLog && m_pLogger) {
 			if(m_nPreviousShutterState != m_nShutterState) {
 				m_nPreviousShutterState = m_nShutterState;
@@ -887,7 +1037,7 @@ int CRigelDome::isOpenComplete(bool &bComplete)
 				ltime = time(NULL);
 				timestamp = asctime(localtime(&ltime));
 				timestamp[strlen(timestamp) - 1] = 0;
-				sprintf(szEventLogMsg, "[%s] Shutter Opened", timestamp);
+				snprintf(szEventLogMsg, 256, "[%s] Shutter Opened", timestamp);
 				m_pLogger->out(szEventLogMsg);
 			}
         }
@@ -897,6 +1047,14 @@ int CRigelDome::isOpenComplete(bool &bComplete)
         bComplete = false;
         m_dCurrentElPosition = 0.0;
     }
+
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 2
+    ltime = time(NULL);
+    timestamp = asctime(localtime(&ltime));
+    timestamp[strlen(timestamp) - 1] = 0;
+    fprintf(Logfile, "[%s] [CRigelDome::isOpenComplete] Open complete = %s\n", timestamp, bComplete?"Yes":"No");
+    fflush(Logfile);
+#endif
 
     return nErr;
 }
@@ -911,7 +1069,15 @@ int CRigelDome::isCloseComplete(bool &bComplete)
     err = getShutterState(m_nShutterState);
     if(err)
         return ERR_CMDFAILED;
+
     if(m_nShutterState == CLOSED){
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 2
+        ltime = time(NULL);
+        timestamp = asctime(localtime(&ltime));
+        timestamp[strlen(timestamp) - 1] = 0;
+        fprintf(Logfile, "[%s] [CRigelDome::isCloseComplete] Shutter Closed\n", timestamp);
+        fflush(Logfile);
+#endif
         m_bShutterOpened = false;
         bComplete = true;
         m_dCurrentElPosition = 0.0;
@@ -922,7 +1088,7 @@ int CRigelDome::isCloseComplete(bool &bComplete)
 				ltime = time(NULL);
 				timestamp = asctime(localtime(&ltime));
 				timestamp[strlen(timestamp) - 1] = 0;
-				sprintf(szEventLogMsg, "[%s] Shutter Closed", timestamp);
+				snprintf(szEventLogMsg, 256, "[%s] Shutter Closed", timestamp);
 				m_pLogger->out(szEventLogMsg);
 			}
         }
@@ -932,6 +1098,14 @@ int CRigelDome::isCloseComplete(bool &bComplete)
         bComplete = false;
         m_dCurrentElPosition = 90.0;
     }
+
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 2
+    ltime = time(NULL);
+    timestamp = asctime(localtime(&ltime));
+    timestamp[strlen(timestamp) - 1] = 0;
+    fprintf(Logfile, "[%s] [CRigelDome::isCloseComplete] Close complete = %s\n", timestamp, bComplete?"Yes":"No");
+    fflush(Logfile);
+#endif
 
     return err;
 }
@@ -967,6 +1141,14 @@ int CRigelDome::isParkComplete(bool &bComplete)
         m_bParked = false;
         nErr = ERR_CMDFAILED;
     }
+
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 2
+    ltime = time(NULL);
+    timestamp = asctime(localtime(&ltime));
+    timestamp[strlen(timestamp) - 1] = 0;
+    fprintf(Logfile, "[%s] [CRigelDome::isParkComplete] Park complete = %s\n", timestamp, bComplete?"Yes":"No");
+    fflush(Logfile);
+#endif
 
     return nErr;
 }
@@ -1023,6 +1205,14 @@ int CRigelDome::isFindHomeComplete(bool &bComplete)
         nErr = ERR_CMDFAILED;
     }
 
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 2
+    ltime = time(NULL);
+    timestamp = asctime(localtime(&ltime));
+    timestamp[strlen(timestamp) - 1] = 0;
+    fprintf(Logfile, "[%s] [CRigelDome::isFindHomeComplete] Find home complete = %s\n", timestamp, bComplete?"Yes":"No");
+    fflush(Logfile);
+#endif
+
     return nErr;
 }
 
@@ -1043,17 +1233,22 @@ int CRigelDome::isCalibratingComplete(bool &bComplete)
 
     if(m_nMotorState == CALIBRATIG) {
         bComplete = false;
-        return nErr;
     }
     else if (m_nMotorState == IDLE){
         bComplete = true;
-        return nErr;
     }
     else {
         // probably still moving
         bComplete = false;
-        return nErr;
     }
+
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 2
+    ltime = time(NULL);
+    timestamp = asctime(localtime(&ltime));
+    timestamp[strlen(timestamp) - 1] = 0;
+    fprintf(Logfile, "[%s] [CRigelDome::isCalibratingComplete] Calibration complete = %s\n", timestamp, bComplete?"Yes":"No");
+    fflush(Logfile);
+#endif
 
      return nErr;
 }
