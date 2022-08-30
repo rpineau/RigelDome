@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Rigel Dome X2 PlugIn"
-#define MyAppVersion "1.22"
+#define MyAppVersion "1.31"
 #define MyAppPublisher "RTI-Zone"
 #define MyAppURL "https://rti-zone.org"
 

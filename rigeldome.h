@@ -21,7 +21,7 @@
 
 #include "StopWatch.h"
 
-#define DRIVER_VERSION      1.22
+#define DRIVER_VERSION      1.31
 // #define PLUGIN_DEBUG 2
 
 #define SERIAL_BUFFER_SIZE 20
@@ -106,6 +106,7 @@ protected:
 
     int             isDomeMoving(bool &bIsMoving);
     int             isDomeAtHome(bool &bAtHome);
+    int             isDomeAtPark(bool &bAtPArk);
 
     int             connectToShutter();
     int             isConnectedToShutter(bool &bConnected);

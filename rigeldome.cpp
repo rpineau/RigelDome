@@ -59,11 +59,11 @@ CRigelDome::CRigelDome()
     Logfile = fopen(m_sLogfilePath.c_str(), "w");
 #endif
 
-#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 2
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 1
     ltime = time(NULL);
     timestamp = asctime(localtime(&ltime));
     timestamp[strlen(timestamp) - 1] = 0;
-	fprintf(Logfile, "[%s] [CRigelDome::CRigelDome] Version %3.2f build 2020_08_13_1325,.\n", timestamp, DRIVER_VERSION);
+    fprintf(Logfile, "[%s] [CRigelDome::CRigelDome] Version %3.2f build %s %s\n", timestamp, DRIVER_VERSION, __DATE__, __TIME__);
     fprintf(Logfile, "[%s] [CRigelDome Constructor] Called\n", timestamp);
     fflush(Logfile);
 #endif
@@ -80,11 +80,11 @@ int CRigelDome::Connect(const char *pszPort)
     int nErr;
     int nState;
 
-#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 2
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 1
     ltime = time(NULL);
     timestamp = asctime(localtime(&ltime));
     timestamp[strlen(timestamp) - 1] = 0;
-    fprintf(Logfile, "[%s] [CRigelDome::Connect] Connect called.\n", timestamp);
+    fprintf(Logfile, "[%s] [CRigelDome::Connect] Called.\n", timestamp);
     fflush(Logfile);
 #endif
 
@@ -245,6 +245,15 @@ int CRigelDome::getDomeAz(double &dDomeAz)
     if(!m_bIsConnected)
         return NOT_CONNECTED;
 
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 1
+    ltime = time(NULL);
+    timestamp = asctime(localtime(&ltime));
+    timestamp[strlen(timestamp) - 1] = 0;
+    fprintf(Logfile, "[%s] [CRigelDome::getDomeAz] Called.\n", timestamp);
+    fflush(Logfile);
+#endif
+
+
     if(m_bCalibrating)
         return nErr;
 
@@ -316,6 +325,14 @@ int CRigelDome::getDomeEl(double &dDomeEl)
     if(!m_bIsConnected)
         return NOT_CONNECTED;
 
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 1
+    ltime = time(NULL);
+    timestamp = asctime(localtime(&ltime));
+    timestamp[strlen(timestamp) - 1] = 0;
+    fprintf(Logfile, "[%s] [CRigelDome::getDomeEl] Called.\n", timestamp);
+    fflush(Logfile);
+#endif
+
     getShutterState(nShutterState);
 
     if(!m_bShutterOpened || !m_bHasShutter)
@@ -339,6 +356,15 @@ int CRigelDome::getDomeHomeAz(double &dAz)
 
     if(!m_bIsConnected)
         return NOT_CONNECTED;
+
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 1
+    ltime = time(NULL);
+    timestamp = asctime(localtime(&ltime));
+    timestamp[strlen(timestamp) - 1] = 0;
+    fprintf(Logfile, "[%s] [CRigelDome::getDomeHomeAz] Called.\n", timestamp);
+    fflush(Logfile);
+#endif
+
 
     if(m_bCalibrating)
         return nErr;
@@ -370,6 +396,14 @@ int CRigelDome::getDomeParkAz(double &dAz)
     if(!m_bIsConnected)
         return NOT_CONNECTED;
 
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 1
+    ltime = time(NULL);
+    timestamp = asctime(localtime(&ltime));
+    timestamp[strlen(timestamp) - 1] = 0;
+    fprintf(Logfile, "[%s] [CRigelDome::getDomeParkAz] Called.\n", timestamp);
+    fflush(Logfile);
+#endif
+
     if(m_bCalibrating)
         return nErr;
 
@@ -399,6 +433,14 @@ int CRigelDome::getShutterState(int &nState)
 
     if(!m_bIsConnected)
         return NOT_CONNECTED;
+
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 1
+    ltime = time(NULL);
+    timestamp = asctime(localtime(&ltime));
+    timestamp[strlen(timestamp) - 1] = 0;
+    fprintf(Logfile, "[%s] [CRigelDome::getShutterState] Called.\n", timestamp);
+    fflush(Logfile);
+#endif
 
     if(m_bCalibrating)
         return nErr;
@@ -482,6 +524,14 @@ int CRigelDome::getDomeStepPerRev(int &nStepPerRev)
     if(!m_bIsConnected)
         return NOT_CONNECTED;
 
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 1
+    ltime = time(NULL);
+    timestamp = asctime(localtime(&ltime));
+    timestamp[strlen(timestamp) - 1] = 0;
+    fprintf(Logfile, "[%s] [CRigelDome::getDomeStepPerRev] Called.\n", timestamp);
+    fflush(Logfile);
+#endif
+
     nErr = domeCommand("ENCREV\r", szResp, SERIAL_BUFFER_SIZE);
     if(nErr)
         return nErr;
@@ -499,6 +549,14 @@ int CRigelDome::getBatteryLevels(double &dShutterVolts, int &nPercent)
     
     if(!m_bIsConnected)
         return NOT_CONNECTED;
+
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 1
+    ltime = time(NULL);
+    timestamp = asctime(localtime(&ltime));
+    timestamp[strlen(timestamp) - 1] = 0;
+    fprintf(Logfile, "[%s] [CRigelDome::getBatteryLevels] Called.\n", timestamp);
+    fflush(Logfile);
+#endif
 
     if(m_bCalibrating)
         return nErr;
@@ -568,6 +626,14 @@ int CRigelDome::isDomeMoving(bool &bIsMoving)
     if(!m_bIsConnected)
         return NOT_CONNECTED;
 
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 1
+    ltime = time(NULL);
+    timestamp = asctime(localtime(&ltime));
+    timestamp[strlen(timestamp) - 1] = 0;
+    fprintf(Logfile, "[%s] [CRigelDome::isDomeMoving] Called.\n", timestamp);
+    fflush(Logfile);
+#endif
+
     nErr = domeCommand("MSTATE\r", szResp, SERIAL_BUFFER_SIZE);
     if(nErr)
         return nErr;
@@ -597,6 +663,14 @@ int CRigelDome::isDomeAtHome(bool &bAtHome)
     if(!m_bIsConnected)
         return NOT_CONNECTED;
 
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 1
+    ltime = time(NULL);
+    timestamp = asctime(localtime(&ltime));
+    timestamp[strlen(timestamp) - 1] = 0;
+    fprintf(Logfile, "[%s] [CRigelDome::isDomeAtHome] Called.\n", timestamp);
+    fflush(Logfile);
+#endif
+
     bAtHome = false;
 
     nErr = domeCommand("HOME ?\r", resp, SERIAL_BUFFER_SIZE);
@@ -619,6 +693,45 @@ int CRigelDome::isDomeAtHome(bool &bAtHome)
   
 }
 
+int CRigelDome::isDomeAtPark(bool &bAtPArk)
+{
+    int tmp;
+    int nErr = RD_OK;
+    char resp[SERIAL_BUFFER_SIZE];
+
+    if(!m_bIsConnected)
+        return NOT_CONNECTED;
+
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 1
+    ltime = time(NULL);
+    timestamp = asctime(localtime(&ltime));
+    timestamp[strlen(timestamp) - 1] = 0;
+    fprintf(Logfile, "[%s] [CRigelDome::isDomeAtPark] Called.\n", timestamp);
+    fflush(Logfile);
+#endif
+
+    bAtPArk = false;
+
+    nErr = domeCommand("PARK ?\r", resp, SERIAL_BUFFER_SIZE);
+    if(nErr)
+        return ERR_CMDFAILED;
+
+    tmp = atoi(resp);
+    if(tmp)
+        bAtPArk = true;
+
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 2
+    ltime = time(NULL);
+    timestamp = asctime(localtime(&ltime));
+    timestamp[strlen(timestamp) - 1] = 0;
+    fprintf(Logfile, "[%s] [CRigelDome::isDomeAtPark] Is dome at park = %s\n", timestamp, bAtPArk?"Yes":"No");
+    fflush(Logfile);
+#endif
+
+    return nErr;
+}
+
+
 int CRigelDome::connectToShutter()
 {
     int nErr = RD_OK;
@@ -626,6 +739,14 @@ int CRigelDome::connectToShutter()
 
     if(!m_bIsConnected)
         return NOT_CONNECTED;
+
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 1
+    ltime = time(NULL);
+    timestamp = asctime(localtime(&ltime));
+    timestamp[strlen(timestamp) - 1] = 0;
+    fprintf(Logfile, "[%s] [CRigelDome::connectToShutter] Called.\n", timestamp);
+    fflush(Logfile);
+#endif
 
     nErr = domeCommand("BBOND 1\r", resp, SERIAL_BUFFER_SIZE);
     return nErr;
@@ -639,6 +760,15 @@ int CRigelDome::isConnectedToShutter(bool &bConnected)
 
     if(!m_bIsConnected)
         return NOT_CONNECTED;
+
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 1
+    ltime = time(NULL);
+    timestamp = asctime(localtime(&ltime));
+    timestamp[strlen(timestamp) - 1] = 0;
+    fprintf(Logfile, "[%s] [CRigelDome::isConnectedToShutter] Called.\n", timestamp);
+    fflush(Logfile);
+#endif
+
     bConnected = false;
 
     nErr = domeCommand("BBOND\r", resp, SERIAL_BUFFER_SIZE);
@@ -660,6 +790,14 @@ int CRigelDome::btForce()
     if(!m_bIsConnected)
         return NOT_CONNECTED;
 
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 1
+    ltime = time(NULL);
+    timestamp = asctime(localtime(&ltime));
+    timestamp[strlen(timestamp) - 1] = 0;
+    fprintf(Logfile, "[%s] [CRigelDome::btForce] Called.\n", timestamp);
+    fflush(Logfile);
+#endif
+
     nErr = domeCommand("BTFORCE\r", resp, SERIAL_BUFFER_SIZE);
     return nErr;
 }
@@ -672,6 +810,14 @@ int CRigelDome::syncDome(double dAz, double dEl)
 
     if(!m_bIsConnected)
         return NOT_CONNECTED;
+
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 1
+    ltime = time(NULL);
+    timestamp = asctime(localtime(&ltime));
+    timestamp[strlen(timestamp) - 1] = 0;
+    fprintf(Logfile, "[%s] [CRigelDome::syncDome] Called.\n", timestamp);
+    fflush(Logfile);
+#endif
 
     m_dCurrentAzPosition = dAz;
     snprintf(szBuf, SERIAL_BUFFER_SIZE, "ANGLE K %3.1f\r", dAz);
@@ -695,6 +841,14 @@ int CRigelDome::parkDome()
     if(!m_bIsConnected)
         return NOT_CONNECTED;
 
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 1
+    ltime = time(NULL);
+    timestamp = asctime(localtime(&ltime));
+    timestamp[strlen(timestamp) - 1] = 0;
+    fprintf(Logfile, "[%s] [CRigelDome::parkDome] Called.\n", timestamp);
+    fflush(Logfile);
+#endif
+
     if(m_bCalibrating)
         return SB_OK;
 
@@ -714,6 +868,15 @@ int CRigelDome::parkDome()
 int CRigelDome::unparkDome()
 {
     m_bParked = false;
+
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 1
+    ltime = time(NULL);
+    timestamp = asctime(localtime(&ltime));
+    timestamp[strlen(timestamp) - 1] = 0;
+    fprintf(Logfile, "[%s] [CRigelDome::unparkDome] Called.\n", timestamp);
+    fflush(Logfile);
+#endif
+
     m_dCurrentAzPosition = m_dParkAz;
     syncDome(m_dCurrentAzPosition,m_dCurrentElPosition);
     return 0;
@@ -728,6 +891,14 @@ int CRigelDome::gotoAzimuth(double dNewAz)
 
     if(!m_bIsConnected)
         return NOT_CONNECTED;
+
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 1
+    ltime = time(NULL);
+    timestamp = asctime(localtime(&ltime));
+    timestamp[strlen(timestamp) - 1] = 0;
+    fprintf(Logfile, "[%s] [CRigelDome::gotoAzimuth] Called.\n", timestamp);
+    fflush(Logfile);
+#endif
 
 #if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 2
     ltime = time(NULL);
@@ -761,6 +932,14 @@ int CRigelDome::openShutter()
 
     if(!m_bIsConnected)
         return NOT_CONNECTED;
+
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 1
+    ltime = time(NULL);
+    timestamp = asctime(localtime(&ltime));
+    timestamp[strlen(timestamp) - 1] = 0;
+    fprintf(Logfile, "[%s] [CRigelDome::openShutter] Called.\n", timestamp);
+    fflush(Logfile);
+#endif
 
     if(m_bCalibrating)
         return SB_OK;
@@ -802,6 +981,14 @@ int CRigelDome::closeShutter()
 
     if(!m_bIsConnected)
         return NOT_CONNECTED;
+
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 1
+    ltime = time(NULL);
+    timestamp = asctime(localtime(&ltime));
+    timestamp[strlen(timestamp) - 1] = 0;
+    fprintf(Logfile, "[%s] [CRigelDome::closeShutter] Called.\n", timestamp);
+    fflush(Logfile);
+#endif
 
     if(m_bCalibrating)
         return SB_OK;
@@ -845,6 +1032,14 @@ int CRigelDome::getFirmwareVersion(char *pszVersion, int nStrMaxLen)
     if(!m_bIsConnected)
         return NOT_CONNECTED;
 
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 1
+    ltime = time(NULL);
+    timestamp = asctime(localtime(&ltime));
+    timestamp[strlen(timestamp) - 1] = 0;
+    fprintf(Logfile, "[%s] [CRigelDome::getFirmwareVersion] Called.\n", timestamp);
+    fflush(Logfile);
+#endif
+
     if(m_bCalibrating)
         return SB_OK;
 
@@ -861,6 +1056,14 @@ int CRigelDome::getModel(char *pszModel, int nStrMaxLen)
 {
     int nErr = RD_OK;
     char szResp[SERIAL_BUFFER_SIZE];
+
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 1
+    ltime = time(NULL);
+    timestamp = asctime(localtime(&ltime));
+    timestamp[strlen(timestamp) - 1] = 0;
+    fprintf(Logfile, "[%s] [CRigelDome::getModel] Called.\n", timestamp);
+    fflush(Logfile);
+#endif
 
     if(!m_bIsConnected)
         return NOT_CONNECTED;
@@ -884,18 +1087,17 @@ int CRigelDome::goHome()
     if(!m_bIsConnected)
         return NOT_CONNECTED;
 
-    if(m_bCalibrating)
-        return SB_OK;
-
-#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 2
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 1
     ltime = time(NULL);
     timestamp = asctime(localtime(&ltime));
     timestamp[strlen(timestamp) - 1] = 0;
-    fprintf(Logfile, "[%s] [CRigelDome::goHome] Go Home\n", timestamp);
+    fprintf(Logfile, "[%s] [CRigelDome::goHome] Called.\n", timestamp);
     fflush(Logfile);
 #endif
 
-    
+    if(m_bCalibrating)
+        return SB_OK;
+
     nErr = domeCommand("GO H\r", szResp, SERIAL_BUFFER_SIZE);
     if(nErr)
         return nErr;
@@ -916,6 +1118,14 @@ int CRigelDome::calibrate()
 
     if(!m_bIsConnected)
         return NOT_CONNECTED;
+
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 1
+    ltime = time(NULL);
+    timestamp = asctime(localtime(&ltime));
+    timestamp[strlen(timestamp) - 1] = 0;
+    fprintf(Logfile, "[%s] [CRigelDome::calibrate] Called.\n", timestamp);
+    fflush(Logfile);
+#endif
 
     if(m_bCalibrating)
         return SB_OK;
@@ -953,6 +1163,14 @@ int CRigelDome::isGoToComplete(bool &bComplete)
 
     if(!m_bIsConnected)
         return NOT_CONNECTED;
+
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 1
+    ltime = time(NULL);
+    timestamp = asctime(localtime(&ltime));
+    timestamp[strlen(timestamp) - 1] = 0;
+    fprintf(Logfile, "[%s] [CRigelDome::isGoToComplete] called\n", timestamp);
+    fflush(Logfile);
+#endif
 
     nErr = isDomeMoving(bIsMoving);
     if(nErr) {
@@ -1014,6 +1232,15 @@ int CRigelDome::isOpenComplete(bool &bComplete)
     if(!m_bIsConnected)
         return NOT_CONNECTED;
 
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 1
+    ltime = time(NULL);
+    timestamp = asctime(localtime(&ltime));
+    timestamp[strlen(timestamp) - 1] = 0;
+    fprintf(Logfile, "[%s] [CRigelDome::isOpenComplete] called\n", timestamp);
+    fflush(Logfile);
+#endif
+
+
     nErr = getShutterState(m_nShutterState);
     if(nErr)
         return ERR_CMDFAILED;
@@ -1066,6 +1293,14 @@ int CRigelDome::isCloseComplete(bool &bComplete)
 	if(!m_bIsConnected)
         return NOT_CONNECTED;
 
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 1
+    ltime = time(NULL);
+    timestamp = asctime(localtime(&ltime));
+    timestamp[strlen(timestamp) - 1] = 0;
+    fprintf(Logfile, "[%s] [CRigelDome::isCloseComplete] called\n", timestamp);
+    fflush(Logfile);
+#endif
+
     err = getShutterState(m_nShutterState);
     if(err)
         return ERR_CMDFAILED;
@@ -1114,35 +1349,38 @@ int CRigelDome::isCloseComplete(bool &bComplete)
 int CRigelDome::isParkComplete(bool &bComplete)
 {
     int nErr = 0;
-    double dDomeAz=0;
     bool bIsMoving = false;
 
     if(!m_bIsConnected)
         return NOT_CONNECTED;
 
-    getDomeAz(dDomeAz);
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 1
+    ltime = time(NULL);
+    timestamp = asctime(localtime(&ltime));
+    timestamp[strlen(timestamp) - 1] = 0;
+    fprintf(Logfile, "[%s] [CRigelDome::isParkComplete] called\n", timestamp);
+    fflush(Logfile);
+#endif
+
     nErr = isDomeMoving(bIsMoving);
     if(nErr)
         return nErr;
 
     if(bIsMoving) {
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 1
+        ltime = time(NULL);
+        timestamp = asctime(localtime(&ltime));
+        timestamp[strlen(timestamp) - 1] = 0;
+        fprintf(Logfile, "[%s] [CRigelDome::isParkComplete] Dome still moving\n", timestamp);
+        fflush(Logfile);
+#endif
         bComplete = false;
         return nErr;
     }
 
-    if ((floor(m_dParkAz) <= floor(dDomeAz)+1) && (floor(m_dGotoAz) >= floor(dDomeAz)-1)) {
-        m_bParked = true;
-        bComplete = true;
-    }
-    else {
-        // we're not moving and we're not at the final destination !!!
-        bComplete = false;
-        m_bHomed = false;
-        m_bParked = false;
-        nErr = ERR_CMDFAILED;
-    }
+    nErr = isDomeAtPark(bComplete);
 
-#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 2
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 1
     ltime = time(NULL);
     timestamp = asctime(localtime(&ltime));
     timestamp[strlen(timestamp) - 1] = 0;
@@ -1160,6 +1398,14 @@ int CRigelDome::isUnparkComplete(bool &bComplete)
     if(!m_bIsConnected)
         return NOT_CONNECTED;
 
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 1
+    ltime = time(NULL);
+    timestamp = asctime(localtime(&ltime));
+    timestamp[strlen(timestamp) - 1] = 0;
+    fprintf(Logfile, "[%s] [CRigelDome::isUnparkComplete] called\n", timestamp);
+    fflush(Logfile);
+#endif
+
     m_bParked = false;
     bComplete = true;
 
@@ -1175,11 +1421,26 @@ int CRigelDome::isFindHomeComplete(bool &bComplete)
     if(!m_bIsConnected)
         return NOT_CONNECTED;
 
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 1
+    ltime = time(NULL);
+    timestamp = asctime(localtime(&ltime));
+    timestamp[strlen(timestamp) - 1] = 0;
+    fprintf(Logfile, "[%s] [CRigelDome::isFindHomeComplete] called\n", timestamp);
+    fflush(Logfile);
+#endif
+
     nErr = isDomeMoving(bIsMoving);
     if(nErr)
         return nErr;
 
     if(bIsMoving) {
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 2
+        ltime = time(NULL);
+        timestamp = asctime(localtime(&ltime));
+        timestamp[strlen(timestamp) - 1] = 0;
+        fprintf(Logfile, "[%s] [CRigelDome::isFindHomeComplete] Dome is still moving\n");
+        fflush(Logfile);
+#endif
         m_bHomed = false;
         bComplete = false;
         return nErr;
@@ -1226,6 +1487,14 @@ int CRigelDome::isCalibratingComplete(bool &bComplete)
     if(!m_bIsConnected)
         return NOT_CONNECTED;
 
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 1
+    ltime = time(NULL);
+    timestamp = asctime(localtime(&ltime));
+    timestamp[strlen(timestamp) - 1] = 0;
+    fprintf(Logfile, "[%s] [CRigelDome::isCalibratingComplete] called\n", timestamp);
+    fflush(Logfile);
+#endif
+
     // new version of the test
     nErr = getExtendedState();
     if(nErr)
@@ -1261,6 +1530,14 @@ int CRigelDome::abortCurrentCommand()
 
     m_bCalibrating = false;
 
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 1
+    ltime = time(NULL);
+    timestamp = asctime(localtime(&ltime));
+    timestamp[strlen(timestamp) - 1] = 0;
+    fprintf(Logfile, "[%s] [CRigelDome::abortCurrentCommand] Called.\n", timestamp);
+    fflush(Logfile);
+#endif
+
     return (domeCommand("STOP\r", NULL, SERIAL_BUFFER_SIZE));
 }
 
@@ -1290,6 +1567,14 @@ int CRigelDome::setHomeAz(double dAz)
 
     if(!m_bIsConnected)
         return NOT_CONNECTED;
+
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 1
+    ltime = time(NULL);
+    timestamp = asctime(localtime(&ltime));
+    timestamp[strlen(timestamp) - 1] = 0;
+    fprintf(Logfile, "[%s] [CRigelDome::setHomeAz] Called.\n", timestamp);
+    fflush(Logfile);
+#endif
 
     snprintf(szBuf, SERIAL_BUFFER_SIZE, "HOME %3.1f\r", dAz);
     nErr = domeCommand(szBuf, szResp, SERIAL_BUFFER_SIZE);
@@ -1324,6 +1609,14 @@ int CRigelDome::setParkAz(double dAz)
 
     if(!m_bIsConnected)
         return NOT_CONNECTED;
+
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 1
+    ltime = time(NULL);
+    timestamp = asctime(localtime(&ltime));
+    timestamp[strlen(timestamp) - 1] = 0;
+    fprintf(Logfile, "[%s] [CRigelDome::setParkAz] Called.\n", timestamp);
+    fflush(Logfile);
+#endif
 
     snprintf(szBuf, SERIAL_BUFFER_SIZE, "PARK %3.1f\r", dAz);
     nErr = domeCommand(szBuf, szResp, SERIAL_BUFFER_SIZE);
@@ -1374,6 +1667,14 @@ int CRigelDome::getExtendedState()
 
     if(!m_bIsConnected)
         return NOT_CONNECTED;
+
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 1
+    ltime = time(NULL);
+    timestamp = asctime(localtime(&ltime));
+    timestamp[strlen(timestamp) - 1] = 0;
+    fprintf(Logfile, "[%s] [CRigelDome::getExtendedState] Called.\n", timestamp);
+    fflush(Logfile);
+#endif
 
     nErr = domeCommand("V\r", szResp, SERIAL_BUFFER_SIZE);
     if(nErr)

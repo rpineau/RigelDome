@@ -382,7 +382,7 @@ int X2Dome::dapiGotoAzEl(double dAz, double dEl)
 
     if(!m_bLinked)
         return ERR_NOLINK;
-#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 2
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 1
     char szTmpBuf[256];
     snprintf(szTmpBuf, 256, "[X2Dome::dapiGotoAzEl] goto %3.2f", dAz);
     m_RigelDome.logString(szTmpBuf);
@@ -417,7 +417,7 @@ int X2Dome::dapiOpen(void)
     if(!m_bLinked)
         return ERR_NOLINK;
 
-#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 2
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 1
     m_RigelDome.logString("[X2Dome::dapiOpen]");
 #endif
     if(!m_bHasShutterControl)
@@ -441,7 +441,7 @@ int X2Dome::dapiClose(void)
     if(!m_bLinked)
         return ERR_NOLINK;
 
-#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 2
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 1
     m_RigelDome.logString("[X2Dome::dapiClose]");
 #endif
     if(!m_bHasShutterControl)
@@ -466,6 +466,12 @@ int X2Dome::dapiPark(void)
     if(!m_bLinked)
         return ERR_NOLINK;
 
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 1
+    char szTmpBuf[256];
+    snprintf(szTmpBuf, 256, "[X2Dome::dapiPark]");
+    m_RigelDome.logString(szTmpBuf);
+#endif
+
     if(m_bHasShutterControl)
     {
         nErr = m_RigelDome.closeShutter();
@@ -487,6 +493,12 @@ int X2Dome::dapiUnpark(void)
 
     if(!m_bLinked)
         return ERR_NOLINK;
+
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 1
+    char szTmpBuf[256];
+    snprintf(szTmpBuf, 256, "[X2Dome::dapiUnpark]");
+    m_RigelDome.logString(szTmpBuf);
+#endif
 
     if(m_bHasShutterControl)
     {
@@ -525,7 +537,7 @@ int X2Dome::dapiIsGotoComplete(bool* pbComplete)
     if(!m_bLinked)
         return ERR_NOLINK;
 
-#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 2
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 1
     m_RigelDome.logString("[X2Dome::dapiIsGotoComplete]");
 #endif
     nErr = m_RigelDome.isGoToComplete(*pbComplete);
@@ -542,7 +554,7 @@ int X2Dome::dapiIsOpenComplete(bool* pbComplete)
     if(!m_bLinked)
         return ERR_NOLINK;
     
-#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 2
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 1
     m_RigelDome.logString("[X2Dome::dapiIsOpenComplete]");
 #endif
     if(!m_bHasShutterControl)
@@ -569,7 +581,7 @@ int	X2Dome::dapiIsCloseComplete(bool* pbComplete)
     if(!m_bLinked)
         return ERR_NOLINK;
 
-#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 2
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 1
     m_RigelDome.logString("[X2Dome::dapiIsCloseComplete]");
 #endif
     if(!m_bHasShutterControl)
@@ -596,6 +608,12 @@ int X2Dome::dapiIsParkComplete(bool* pbComplete)
     if(!m_bLinked)
         return ERR_NOLINK;
 
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 1
+    char szTmpBuf[256];
+    snprintf(szTmpBuf, 256, "[X2Dome::dapiIsParkComplete]");
+    m_RigelDome.logString(szTmpBuf);
+#endif
+
     nErr = m_RigelDome.isParkComplete(*pbComplete);
     if(nErr)
         return ERR_CMDFAILED;
@@ -611,6 +629,12 @@ int X2Dome::dapiIsUnparkComplete(bool* pbComplete)
     if(!m_bLinked)
         return ERR_NOLINK;
 
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 1
+    char szTmpBuf[256];
+    snprintf(szTmpBuf, 256, "[X2Dome::dapiIsUnparkComplete]");
+    m_RigelDome.logString(szTmpBuf);
+#endif
+
     nErr = m_RigelDome.isUnparkComplete(*pbComplete);
     if(nErr)
         return ERR_CMDFAILED;
@@ -625,6 +649,12 @@ int X2Dome::dapiIsFindHomeComplete(bool* pbComplete)
 
     if(!m_bLinked)
         return ERR_NOLINK;
+
+#if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 1
+    char szTmpBuf[256];
+    snprintf(szTmpBuf, 256, "[X2Dome::dapiIsFindHomeComplete]");
+    m_RigelDome.logString(szTmpBuf);
+#endif
 
     nErr = m_RigelDome.isFindHomeComplete(*pbComplete);
     if(nErr)
