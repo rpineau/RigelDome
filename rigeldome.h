@@ -113,7 +113,8 @@ protected:
     int             domeCommand(const char *pszCmd, char *pszResult, int nResultMaxLen);
     int             getExtendedState();
     int             parseFields(const char *pszResp, std::vector<std::string> &svFields, char cSeparator);
-    
+    bool            checkBoundaries(double dTargetAz, double dDomeAz, double nMargin=2.0);
+
     LoggerInterface *m_pLogger;
     bool            m_bDebugLog;
     

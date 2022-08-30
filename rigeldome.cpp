@@ -1184,7 +1184,7 @@ int CRigelDome::isGoToComplete(bool &bComplete)
         ltime = time(NULL);
         timestamp = asctime(localtime(&ltime));
         timestamp[strlen(timestamp) - 1] = 0;
-        fprintf(Logfile, "[%s] [CRigelDome::isGoToComplete] Dome is moving, domeAz = %f, mGotoAz = %f\n", timestamp, ceil(dDomeAz), ceil(m_dGotoAz));
+        fprintf(Logfile, "[%s] [CRigelDome::isGoToComplete] Dome is moving, domeAz = %f, mGotoAz = %f\n", timestamp, dDomeAz, m_dGotoAz);
         fflush(Logfile);
 #endif
         bComplete = false;
@@ -1195,11 +1195,12 @@ int CRigelDome::isGoToComplete(bool &bComplete)
     ltime = time(NULL);
     timestamp = asctime(localtime(&ltime));
     timestamp[strlen(timestamp) - 1] = 0;
-    fprintf(Logfile, "[%s] [CRigelDome::isGoToComplete] Dome is NOT moving, domeAz = %f, mGotoAz = %f\n", timestamp, ceil(dDomeAz), ceil(m_dGotoAz));
+    fprintf(Logfile, "[%s] [CRigelDome::isGoToComplete] Dome is NOT moving, domeAz = %f, mGotoAz = %f\n", timestamp, dDomeAz, m_dGotoAz);
     fflush(Logfile);
 #endif
 
-    if ((floor(m_dGotoAz) <= floor(dDomeAz)+1) && (floor(m_dGotoAz) >= floor(dDomeAz)-1)) {
+    if(checkBoundaries(m_dGotoAz, dDomeAz)) {
+        bComplete = true;
 #if defined PLUGIN_DEBUG && PLUGIN_DEBUG >= 2
         ltime = time(NULL);
         timestamp = asctime(localtime(&ltime));
@@ -1207,7 +1208,6 @@ int CRigelDome::isGoToComplete(bool &bComplete)
         fprintf(Logfile, "[%s] [CRigelDome::isGoToComplete] GOTO completed.\n", timestamp);
         fflush(Logfile);
 #endif
-        bComplete = true;
     }
     else {
         // we're not moving and we're not at the final destination !!!
@@ -1539,6 +1539,36 @@ int CRigelDome::abortCurrentCommand()
 #endif
 
     return (domeCommand("STOP\r", NULL, SERIAL_BUFFER_SIZE));
+}
+
+bool CRigelDome::checkBoundaries(double dTargetAz, double dDomeAz, double nMargin)
+{
+    double highMark;
+    double lowMark;
+    double roundedTargetAz;
+
+    // we need to test "large" depending on the heading error and movement coasting
+    highMark = ceil(dDomeAz)+nMargin;
+    lowMark = ceil(dDomeAz)-nMargin;
+    roundedTargetAz = ceil(dTargetAz);
+
+    if(lowMark < 0 && highMark > 0) { // we're close to 0 degre but above 0
+        if((roundedTargetAz+2) >= 360)
+            roundedTargetAz = (roundedTargetAz+2)-360;
+        if ( (roundedTargetAz > lowMark) && (roundedTargetAz <= highMark)) {
+            return true;
+        }
+    }
+    if ( lowMark > 0 && highMark>360 ) { // we're close to 0 but from the other side
+        if( (roundedTargetAz+360) > lowMark && (roundedTargetAz+360) <= highMark) {
+            return true;
+        }
+    }
+    if (roundedTargetAz > lowMark && roundedTargetAz <= highMark) {
+        return true;
+    }
+
+    return false;
 }
 
 #pragma mark - Getter / Setter
